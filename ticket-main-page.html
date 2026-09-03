@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Super Secret Project</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Loading Inter Font Family -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+
+<body>
+
+    <div class="container">
+
+        <!-- Sidebar -->
+
+        <div class="sidebar">
+
+            <div class="sidebar-header">
+                
+                <h1>Super Secret Project</h1>
+
+            </div>
+
+            <div class="sidebar-menu">
+
+                <h4>Navigation</h4>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="create-ticket.html">Create Ticket</a>
+                <a href="ticket-list.html">Ticket List</a>
+                <a href="knowledge-base.html">Knowledge Base</a>
+
+            </div>
+
+            <div class="sidebar-footer">
+
+                <h2>Account</h2>
+                <p>Account Email</p>
+
+            </div>
+
+        </div>
+
+        <div class="main-content">
+
+            <!-- Shared -->
+
+            <div class="main-content-header">
+
+                <h2>Ticket Information</h2>
+
+            </div>
+
+            <div class="main-ticket-information">
+
+                <!-- Ticket Information Title -->
+
+                <div class="main-ticket-information-title">
+
+                    <h1>Ticket Information</h1>
+                    <p>Manage Ticket Information</p>
+
+                </div>
+
+                <!-- Ticket Number -->
+
+                <div class="main-ticket-information-ticket-number">
+
+                    <label for="ticket-number">Ticket Number:</label>
+                    <input
+                    type="text"
+                    id="ticket-number"
+                    readonly
+                    >
+
+                </div>
+
+                <!-- Ticket Information Body -->
+
+                <div class="main-ticket-information-body">
+
+                    <div class="main-ticket-information-user-information">
+
+                        <h2>User Information</h2>
+
+                        <label for="user">User</label>
+                        <input
+                            type="text"
+                            id="user"
+                            name="user"
+                            placeholder="Search user..."
+                        >
+
+                        <label for="employee-number">Employee Number</label>
+                        <input
+                            type="text"
+                            id="employee-number"
+                            name="employee-number"
+                            readonly
+                        >
+
+                        <label for="employee-email">Employee Email</label>
+                        <input
+                            type="email"
+                            id="employee-email"
+                            name="employee-email"
+                            readonly
+                        >
+
+                        <label for="employee-job-title">Job Title</label>
+                        <input
+                            type="text"
+                            id="employee-job-title"
+                            name="employee-job-title"
+                            readonly
+                        >
+
+                    </div>
+
+                    <div class="main-ticket-information-ticket-information">
+
+                        <h2>Ticket Information</h2>
+
+                        <label for="ticket-status">Status</label>
+                        <select id="ticket-status" name="ticket-status">
+                            <option value="in-progress">In-progress</option>
+                            <option value="on-hold">On Hold</option>
+                            <option value="pending">Pending</option>
+                            <option value="resolved">Resolved</option>
+                        </select>
+
+                        <label for="ticket-created-date">Opened On</label>
+                        <input
+                            type="text"
+                            id="ticket-created-date"
+                            name="ticket-created-date"
+                            readonly
+                        >
+
+                        <label for="category">Category</label>
+                        <select id="category" name="category">
+                            <option value="">Select Category</option>
+                            <option value="hardware">Hardware</option>
+                            <option value="software">Software</option>
+                            <option value="network">Network</option>
+                            <option value="account">Account</option>
+                            <option value="other">Other</option>
+                        </select>
+
+                        <label for="priority">Priority</label>
+                        <select id="priority" name="priority">
+                            <option value="">Select Priority</option>
+                            <option value="low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+
+                        <label for="assigned-department">Assigned Department</label>
+                        <input
+                            type="text"
+                            id="assigned-department"
+                            name="assigned-department"
+                        >
+
+                        <label for="assigned-technician">Assigned Technician</label>
+                        <input
+                            type="text"
+                            id="assigned-technician"
+                            name="assigned-technician"
+                        >
+
+                    </div>
+
+                    <div class="main-ticket-information-subject-and-description">
+
+                        <label for="subject">Subject</label>
+                        <input
+                            type="text"
+                            id="subject"
+                            name="subject"
+                            placeholder="Enter ticket subject..."
+                        >
+
+                        <label for="description">Description</label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            placeholder="Enter issue description..."
+                        ></textarea>
+
+                    </div>
+
+                    <div class="main-ticket-information-worknotes">
+                        
+                        <label for="worknotes">Worknotes</label>
+                        <textarea
+                            id="worknotes"
+                            name="worknotes"
+                            placeholder="Enter troubleshooting done..."
+                        ></textarea>
+
+                    </div>
+
+                    <div class="main-ticket-information-buttons">
+
+                        <button type="button" class="main-ticket-information-buttons-normal">Cancel</button>
+                        <button type="button" class="main-ticket-information-buttons-normal">Save Changes</button>
+                        <button type="button" class="main-ticket-information-buttons-resolve">Resolve</button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    
+
+
+
+
+
+
+
+</body>
+</html>

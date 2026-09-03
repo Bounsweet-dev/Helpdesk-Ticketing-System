@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Super Secret Project</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Loading Inter Font Family -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+</head>
+
+
+<body>
+    
+    <div class="container">
+
+        <!-- Side Bar -->
+
+        <div class="sidebar">
+
+            <div class="sidebar-header">
+                
+                <h1>Super Secret Project</h1>
+
+            </div>
+
+            <div class="sidebar-menu">
+
+                <h4>Navigation</h4>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="create-ticket.html" class="active">Create Ticket</a>
+                <a href="ticket-list.html">Ticket List</a>
+                <a href="knowledge-base.html">Knowledge Base</a>
+
+            </div>
+
+            <div class="sidebar-footer">
+
+                <h2>Account</h2>
+                <p>Account Email</p>
+
+            </div>
+
+        </div>
+
+
+        <div class="main-content">
+
+            <!-- Shared -->
+
+            <div class="main-content-header">
+                
+                <h2>Create a Ticket</h2>
+
+            </div>
+
+            <div class="main-create-ticket">
+
+                <!-- Create Ticket Main Title -->
+
+                <div class="main-create-ticket-title">
+
+                    <h1>Create Ticket</h1>
+                    <p>Create a Support Ticket for a User</p>
+
+                </div>
+
+                <!-- Create Ticket Main Body -->
+
+                <div class="main-create-ticket-body">
+
+                    <div class="main-create-ticket-user-information">
+
+                        <h2>User Information</h2>
+
+                        <label for="user">User</label>
+                        <input
+                            type="text"
+                            id="user"
+                            name="user"
+                            placeholder="Search user..."
+                            class="main-create-ticket-user-information-search-user"
+                        >
+
+                        <label for="employee-number">Employee Number</label>
+                        <input
+                            type="text"
+                            id="employee-number"
+                            name="employee-number"
+                            readonly
+                        >
+
+                        <label for="employee-email">Employee Email</label>
+                        <input
+                            type="email"
+                            id="employee-email"
+                            name="employee-email"
+                            readonly
+                        >
+
+                        <label for="employee-job-title">Job Title</label>
+                        <input
+                            type="employee-job-title"
+                            id="employee-job-title"
+                            name="employee-job-title"
+                            readonly
+                        >
+
+                    </div>
+
+                    <div class="main-create-ticket-ticket-information">
+
+                        <h2>Ticket Information</h2>
+
+                        <label for="category">Category</label>
+                        <select id="category" name="category">
+                            <option value="">Select Category</option>
+                            <option value="hardware">Hardware</option>
+                            <option value="software">Software</option>
+                            <option value="network">Network</option>
+                            <option value="account">Account</option>
+                            <option value="other">Other</option>
+                        </select>
+
+                        <label for="priority">Priority</label>
+                        <select id="priority" name="priority">
+                            <option value="">Select Priority</option>
+                            <option value="low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">Select High</option>
+                        </select>
+
+                    </div>
+
+                    <div class="main-create-ticket-subject-and-description">
+
+                        <label for="subject">Subject</label>
+                        <input
+                            type="text"
+                            id="subject"
+                            name="subject"
+                            placeholder="Enter ticket subject"
+                        >
+
+                        <label for="description">Description</label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            placeholder="Enter issue description..."
+                        ></textarea>
+
+                    </div>
+
+                    <div class="main-create-ticket-buttons">
+
+                        <button type="button" class="main-create-ticket-buttons-cancel">Cancel</button>
+                        <button type="button" class="main-create-ticket-buttons-create">Create Ticket</button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!--<script src="script.js"></script>-->
+
+</body>
+
+</html>
