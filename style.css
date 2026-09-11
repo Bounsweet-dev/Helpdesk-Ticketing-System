@@ -25,9 +25,40 @@ body {
 }
 
 .sidebar-header {
-    font-size: 10px;
-    text-align: center;
-    padding: 20px 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-left: 30px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #d3d3d3;
+}
+
+.sidebar-logo {
+    width: 40px;
+    height: 40px;
+}
+
+.sidebar-title h1,
+.sidebar-title h3 {
+    margin: 0;
+}
+
+.sidebar-title h1 {
+    font-size: 24px;
+}
+
+.sidebar-title h3 {
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.sidebar-header h1 {
+    margin-bottom: 0;
+}
+
+.sidebar-header h3 {
+    margin-top: 0;
 }
 
 .sidebar-menu {
@@ -42,8 +73,11 @@ body {
     margin-left: 10px;
 }
 
-.sidebar-menu a{
-    display: block;
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
     padding: 5px 20px;
     margin: 0 10px;
     font-size: 17px;
@@ -67,6 +101,11 @@ body {
     border-radius: 5px;
 }
 
+.sidebar-menu svg {
+    width: 18px;
+    height: 18px;
+}
+
 .sidebar-footer {
     margin-top: auto;
     border-top: 1px solid #dcd5f0;
@@ -85,12 +124,24 @@ body {
     border-bottom: 1px solid #d3d3d3;
 }
 
+.main-content-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.main-content-header svg {
+    height: 20px;
+    width: 20px;
+}
+
 /* Main Body Title Design */
 
 .main-dashboard-title,
 .main-ticket-information-title,
 .main-create-ticket-title,
-.main-ticket-list-title {
+.main-ticket-list-title,
+.main-knowledge-base-title {
     padding-left: 30px;
     padding-bottom: 0;
 }
@@ -98,14 +149,16 @@ body {
 .main-dashboard-title h1,
 .main-ticket-information-title h1,
 .main-create-ticket-title h1,
-.main-ticket-list-title h1 {
+.main-ticket-list-title h1,
+.main-knowledge-base-title h1 {
     margin-bottom: 0;
 }
 
 .main-dashboard-title p,
 .main-ticket-information-title p,
 .main-create-ticket-title p,
-.main-ticket-list-title p {
+.main-ticket-list-title p,
+.main-knowledge-base-title p {
     margin-top: 0;
 }
 
@@ -113,8 +166,7 @@ body {
 
 .main-dashboard-cards {
     display: flex;
-    gap: 20px;
-    width: 95%;
+    width: 90%;
     margin: 0 auto;
 }
 
@@ -122,7 +174,9 @@ body {
     flex: 1;
     min-width: 0;
 
-    padding: 20px;
+    padding: 0 20px;
+
+    margin: 5px 20px;
 
     background-color: white;
     color: #3f3852;
@@ -139,6 +193,15 @@ body {
     color: #6d5ba6;
 }
 
+.main-dashboard-cards h3 {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    padding-top: 10px;
+    font-size: 17px;
+}
+
 .main-dashboard-ticket-tracker {
     display: flex;
     gap: 20px;
@@ -146,7 +209,8 @@ body {
     margin: 0 auto;
 }
 
-.main-dashboard-recent-tickets {
+.main-dashboard-recent-tickets,
+.main-knowledge-base-articles {
     flex: 1;
     min-width: 0;
 
@@ -167,7 +231,8 @@ body {
 
 }
 
-.main-dashboard-recent-tickets a {
+.main-dashboard-recent-tickets a,
+.main-knowledge-base-articles a {
     display: block;
     padding: 10px 0;
 
@@ -178,11 +243,13 @@ body {
     transition: background-color 0.3s ease;
 }
 
-.main-dashboard-recent-tickets a:hover {
+.main-dashboard-recent-tickets a:hover,
+.main-knowledge-base-articles a:hover {
     background-color: #dcd5f0;
 }
 
-.main-dashboard-recent-tickets h2 {
+.main-dashboard-recent-tickets h2,
+.main-knowledge-base-articles h2 {
     border-bottom: 1px solid #d3d3d3;
     padding-bottom: 5px;
 }
@@ -301,10 +368,20 @@ body {
 
 .main-create-ticket-buttons-cancel,
 .main-create-ticket-buttons-create {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
     min-width: 100px;
     padding: 10px;
     border-radius: 15px;
     cursor: pointer;
+}
+
+.main-create-ticket-buttons-cancel svg,
+.main-create-ticket-buttons-create svg {
+    height: 20px;
+    width: 20px;
 }
 
 .main-create-ticket-buttons-cancel {
@@ -437,10 +514,20 @@ body {
 
 #main-ticket-information-buttons-normal,
 #main-ticket-information-buttons-resolve {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
     min-width: 100px;
     padding: 10px;
     border-radius: 15px;
     cursor: pointer;
+}
+
+#main-ticket-information-buttons-normal svg,
+#main-ticket-information-buttons-resolve svg {
+    height: 20px;
+    width: 20px;
 }
 
 #main-ticket-information-buttons-normal {
@@ -527,6 +614,11 @@ body {
 
 /* Filter Button Design */
 #main-ticket-list-filter-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
     width: calc(100% - 60px); /* this is to make the right margin not overfow */
     padding: 5px;
     margin-bottom: 10px;
@@ -539,6 +631,7 @@ body {
     font-weight: bold;
 
     border: 1px solid #3f3852;
+    border-radius: 8px;
 
     cursor: pointer;
 
@@ -550,6 +643,11 @@ body {
     color: #6D5BA6;
 }
 
+#main-ticket-list-filter-button svg {
+    width: 16px;
+    height: 16px;
+}
+
 .main-ticket-list-filter-change {
     grid-column: 1 / -1;
     display: flex;
@@ -558,15 +656,33 @@ body {
 }
 
 #main-ticket-list-filter-clear {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
     background-color: white;
     color: #3f3852;
     border: 1px solid #3f3852;
 }
 
+#main-ticket-list-filter-clear svg {
+    height: 15px;
+    width: 15px;
+}
+
 #main-ticket-list-filter-apply {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
     background-color: #3f3852;
     color: white;
     border: 1px solid #3f3852;
+}
+
+#main-ticket-list-filter-apply svg {
+    height: 15px;
+    width: 15px;
 }
 
 #main-ticket-list-filter-clear:hover {
@@ -587,3 +703,67 @@ body {
 }
 
 /*Knowledge Base Design */
+.main-knowledge-base-search-bar {
+    padding: 0 30px;
+}
+
+.main-knowledge-base-search-bar input{
+    width: 80%;
+    padding: 5px;
+    box-sizing: border-box;
+
+    background-color: white;
+    color: black;
+
+    border-radius: 8px;
+    border: 1px solid #3f3852;
+}
+
+/* Knowledge Base Cards */
+.main-knowledge-base-cards {
+    display: flex;
+    gap: 20px;
+    width: 80%;
+    padding: 0 30px;
+}
+
+.main-knowledge-base-cards-title {
+    padding: 0 30px;
+    margin-bottom: 1px;
+}
+
+.card-knowledge-base {
+    flex: 1;
+    min-width: 0;
+
+    padding: 0 20px;
+
+    margin-top: 10px;
+
+    background-color: white;
+    color: #3f3852;
+
+    text-decoration: none;
+    border-radius: 8px;
+    border: 1px solid #d3d3d3;
+
+    transition: background-color 0.3s ease, color 0.3 ease;
+}
+
+.card-knowledge-base:hover {
+    background-color: #dcd5f0;
+    color: #6d5ba6;
+}
+
+.main-knowledge-base-articles {
+    margin-left: 30px;
+    width: 77%;
+}
+
+.main-knowledge-base-articles h2 {
+    margin-top: 1px;
+}
+
+.main-knowledge-base-article {
+    padding: 0 30px;
+}

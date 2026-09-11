@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Super Secret Project - Ticket Information</title>
+    <title>Ticket Information | NexusDesk</title>
+
+    <link rel="icon" type="image/svg+xml" href="nexusdesk-logo.svg">
 
     <link rel="stylesheet" href="style.css">
 
     <!-- Loading Inter Font Family -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Loading Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
 </head>
 
@@ -23,18 +28,33 @@
         <div class="sidebar">
 
             <div class="sidebar-header">
-                
-                <h1>Super Secret Project</h1>
+
+                <i data-lucide="headset" class="sidebar-logo"></i>
+
+                <div class="sidebar-title">
+
+                    <h1>NexusDesk</h1>
+                    <h3>Support Platform</h3>
+
+                </div>
 
             </div>
 
             <div class="sidebar-menu">
 
                 <h4>Navigation</h4>
-                <a href="index.html">Dashboard</a>
-                <a href="create-ticket.html">Create Ticket</a>
-                <a href="ticket-list.html">Ticket List</a>
-                <a href="knowledge-base.html">Knowledge Base</a>
+                <a href="index.html">
+                    <i data-lucide="layout-dashboard"></i>
+                    Dashboard</a>
+                <a href="create-ticket.html">
+                    <i data-lucide="plus-circle"></i>
+                    Create Ticket</a>
+                <a href="ticket-list.html">
+                    <i data-lucide="ticket"></i>
+                    Ticket List</a>
+                <a href="knowledge-base.html">
+                    <i data-lucide="book"></i>
+                    Knowledge Base</a>
 
             </div>
 
@@ -53,7 +73,7 @@
 
             <div class="main-content-header">
 
-                <h2>Ticket Information</h2>
+                <h2><i data-lucide="pencil"></i>Ticket Information</h2>
 
             </div>
 
@@ -209,9 +229,12 @@
 
                     <div class="main-ticket-information-buttons">
 
-                        <button type="button" id="main-ticket-information-buttons-normal">Cancel</button>
-                        <button type="button" id="main-ticket-information-buttons-normal">Save Changes</button>
-                        <button type="button" id="main-ticket-information-buttons-resolve">Resolve</button>
+                        <button type="button" id="main-ticket-information-buttons-normal">
+                            <i data-lucide="x"></i>Cancel</button>
+                        <button type="button" id="main-ticket-information-buttons-normal">
+                            <i data-lucide="pencil-line"></i>Save Changes</button>
+                        <button type="button" id="main-ticket-information-buttons-resolve">
+                            <i data-lucide="check"></i>Resolve</button>
 
                     </div>
 
@@ -224,11 +247,8 @@
     </div>
     
 
-
-
-
-
-
+    <!-- Script -->
+    <script>lucide.createIcons()</script> <!-- Lucide Icons -->
 
 </body>
 </html>

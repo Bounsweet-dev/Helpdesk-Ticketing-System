@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Super Secret Project - Dashboard</title>
+    <title>Dashboard | NexusDesk</title>
+
+    <link rel="icon" type="image/svg+xml" href="nexusdesk-logo.svg">
 
     <link rel="stylesheet" href="style.css">
 
     <!-- Loading Inter Font Family -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Loading Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
 </head>
 
@@ -21,24 +26,43 @@
         <!-- Side Bar -->
 
         <div class="sidebar">
-            
+
             <div class="sidebar-header">
-                <h1>Super Secret Project</h1>
+
+                <i data-lucide="headset" class="sidebar-logo"></i>
+
+                <div class="sidebar-title">
+
+                    <h1>NexusDesk</h1>
+                    <h3>Support Platform</h3>
+
+                </div>
+
             </div>
 
             <div class="sidebar-menu">
 
                 <h4>Navigation</h4>
-                <a href="index.html" class="active">Dashboard</a>
-                <a href="create-ticket.html">Create Ticket</a>
-                <a href="ticket-list.html">Ticket List</a>
-                <a href="knowledge-base.html">Knowledge Base</a>
+                <a href="index.html">
+                    <i data-lucide="layout-dashboard"></i>
+                    Dashboard</a>
+                <a href="create-ticket.html">
+                    <i data-lucide="plus-circle"></i>
+                    Create Ticket</a>
+                <a href="ticket-list.html">
+                    <i data-lucide="ticket"></i>
+                    Ticket List</a>
+                <a href="knowledge-base.html">
+                    <i data-lucide="book"></i>
+                    Knowledge Base</a>
 
             </div>
 
             <div class="sidebar-footer">
+
                 <h2>Account</h2>
                 <p>Account Email</p>
+
             </div>
 
         </div>
@@ -49,7 +73,7 @@
 
             <div class="main-content-header">
 
-                <h2>Dashboard</h2>
+                <h2><i data-lucide="layout-dashboard"></i>Dashboard</h2>
 
             </div>
 
@@ -67,28 +91,28 @@
 
                     <a href="ticket-list.html" class="card">
 
-                        <h3>Open Tickets</h3>
+                        <h3><i data-lucide="ticket"></i> Tickets</h3>
                         <p>0</p>
 
                     </a>
 
                     <a href="ticket-list.html" class="card">
 
-                        <h3>Unassigned Tickets</h3>
+                        <h3><i data-lucide="user-round-x"></i>Unassigned Tickets</h3>
                         <p>0</p>
 
                     </a>
 
                     <a href="ticket-list.html" class="card">
 
-                        <h3>Pending Tickets</h3>
+                        <h3><i data-lucide="clock"></i>Pending Tickets</h3>
                         <p>15</p>
 
                     </a>
 
                     <a href="ticket-list.html" class="card">
 
-                        <h3>Resolved Tickets</h3>
+                        <h3><i data-lucide="circle-check"></i>Resolved Tickets</h3>
                         <p>90</p>
 
                     </a>
@@ -149,7 +173,8 @@
 
 
 
-    <!--<script src="script.js"></script>-->
+    <!-- Script -->
+    <script>lucide.createIcons()</script> <!-- Lucide Icons -->
 
 </body>
 
