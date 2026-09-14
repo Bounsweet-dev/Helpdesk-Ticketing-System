@@ -92,28 +92,28 @@
                     <a href="ticket-list.html" class="card">
 
                         <h3><i data-lucide="ticket"></i> Tickets</h3>
-                        <p>0</p>
+                        <p id="dashboard-ticket-card">0</p>
 
                     </a>
 
                     <a href="ticket-list.html" class="card">
 
                         <h3><i data-lucide="user-round-x"></i>Unassigned Tickets</h3>
-                        <p>0</p>
+                        <p id="dashboard-unassigned-ticket-card">0</p>
 
                     </a>
 
                     <a href="ticket-list.html" class="card">
 
                         <h3><i data-lucide="clock"></i>Pending Tickets</h3>
-                        <p>15</p>
+                        <p id="dashboard-pending-ticket-card">0</p>
 
                     </a>
 
                     <a href="ticket-list.html" class="card">
 
                         <h3><i data-lucide="circle-check"></i>Resolved Tickets</h3>
-                        <p>90</p>
+                        <p id="dashboard-resolved-ticket-card">0</p>
 
                     </a>
 
@@ -125,20 +125,7 @@
 
                         <h2>Recent Tickets</h2>
 
-                        <div class="main-dashboard-recent-tickets-list">
-
-                            <a href="ticket-main-page.html">Ticket#1000 - Computer Won't Start</a>
-                            <a href="ticket-main-page.html">Ticket#1000 - Computer Won't Start</a>
-                            <a href="ticket-main-page.html">Ticket#1000 - Computer Won't Start</a>
-                            <a href="ticket-main-page.html">Ticket#1000 - Computer Won't Start</a>
-                            <a href="ticket-main-page.html">Ticket#1000 - Computer Won't Start</a>
-                            <a href="ticket-main-page.html">Ticket#1000 - Computer Won't Start</a>
-                            <a href="ticket-main-page.html">Ticket#1000 - Computer Won't Start</a>
-                            <a href="ticket-main-page.html">Ticket#1000 - Computer Won't Start</a>
-                            <a href="ticket-main-page.html">Ticket#1000 - Computer Won't Start</a>
-                            <a href="ticket-main-page.html">Ticket#1000 - Computer Won't Start</a>
-                            <a href="ticket-main-page.html">Ticket#1000 - Computer Won't Start</a>
-
+                        <div class="main-dashboard-recent-tickets-list" id="main-dashboard-recent-tickets-list">
                         </div>
 
                         <a href="ticket-list.html" class="main-dashboard-view-all-tickets">View All Tickets -></a>
@@ -149,20 +136,36 @@
 
                         <h2>Ticket Priority Count</h2>
 
-                        <a href="ticket-list.html"><span>High Priority</span><p>0</p></a>
-                        <a href="ticket-list.html"><span>Medium Priority</span><p>1</p></a>
-                        <a href="ticket-list.html"><span>Low Priority</span><p>190</p></a>
+                        <a href="ticket-list.html"><span>High Priority</span><p id="dashboard-priority-tickets-high">0</p></a>
+                        <a href="ticket-list.html"><span>Medium Priority</span><p id="dashboard-priority-tickets-medium">0</p></a>
+                        <a href="ticket-list.html"><span>Low Priority</span><p id="dashboard-priority-tickets-low">0</p></a>
                         <a href="ticket-list.html" class="main-dashboard-view-all-tickets">View All Tickets -></a>
 
                     </div>
 
                 </div>
 
-                <h1>Insert Graph</h1>
-                <h2>Created Today: 12</h2>
-                <h2>Resolved Today: 10</h2>
+                <h2 class="main-dashboard-ticket-activity-title">Ticket Activity</h2>
+
+                <div class="main-dashboard-ticket-activity">
+
+                    <div class="main-dashboard-ticket-activity-chart">
+
+                        <canvas id="dashboard-ticket-activity-chart"></canvas>
+                    
+                    </div>
+                        
+                    <div class="main-dashboard-ticket-activity-today">
+
+                        <h2>Created Today: <span id="dashboard-created-today">0</span></h2>
+                        <h2>Resolved Today: <span id="dashboard-resolved-today">0</span></h2>
+
+                    </div>
 
                 </div>
+
+                
+                
 
             </div>
 
@@ -172,9 +175,9 @@
     </div>
 
 
-
     <!-- Script -->
-    <script>lucide.createIcons()</script> <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
 
 </body>
 

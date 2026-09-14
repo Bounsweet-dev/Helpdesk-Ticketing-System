@@ -5,6 +5,7 @@
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
+    color: #3f3852;
 }
 
 .container {
@@ -18,7 +19,7 @@ body {
     width: 250px;
     height: 100vh;
     background-color: #f1eefa;
-    color: black;
+    color: #3f3852;
     display: flex;
     flex-direction: column;
     border-right: 1px solid #dcd5f0;
@@ -82,7 +83,7 @@ body {
     margin: 0 10px;
     font-size: 17px;
 
-    color: black;
+    color: #3f3852;
     text-decoration: none;
     background-color: transparent;
 
@@ -91,13 +92,13 @@ body {
 
 .sidebar-menu a:hover {
     background-color: #dcd5f0;
-    color: #6D5BA6;
+    color: #6d5ba6;
     border-radius: 5px;
 }
 
 .sidebar-menu a.active {
     background-color: #dcd5f0;
-    color: #6D5BA6;
+    color: #6d5ba6;
     border-radius: 5px;
 }
 
@@ -115,7 +116,7 @@ body {
 
 .main-content {
     flex: 1;
-    background-color: #FAF9FD;
+    background-color: #faf9fd;
 }
 
 .main-content-header {
@@ -251,7 +252,7 @@ body {
 .main-dashboard-recent-tickets h2,
 .main-knowledge-base-articles h2 {
     border-bottom: 1px solid #d3d3d3;
-    padding-bottom: 5px;
+    margin-top: 0;
 }
 
 .main-dashboard-recent-tickets-list {
@@ -282,7 +283,6 @@ body {
 .main-dashboard-priority-tickets h2 {
     margin-top: 0;
     border-bottom: 1px solid #d3d3d3;
-    border-radius: 8px;
 }
 
 .main-dashboard-priority-tickets a {
@@ -301,11 +301,31 @@ body {
 
 .main-dashboard-priority-tickets a:hover {
     background-color: #dcd5f0;
-    color: #6D5BA6;
+    color: #6d5ba6;
 }
 
 .main-dashboard-view-all-tickets {
     margin-top: auto;
+}
+
+.main-dashboard-ticket-activity-title {
+    padding-left: 30px;
+}
+
+.main-dashboard-ticket-activity {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.main-dashboard-ticket-activity-chart {
+    padding-left: 30px;
+    width: 50%;
+}
+
+.main-dashboard-ticket-activity-today {
+    padding-left: 30px;
+    flex: 1;
 }
 
 
@@ -327,7 +347,7 @@ body {
 .main-create-ticket-user-information input {
     padding: 5px;
     background-color: white;
-    color: black;
+    color: #3f3852;
 
     max-width: 70%;
 
@@ -337,13 +357,13 @@ body {
 
 .main-create-ticket-user-information input[readonly] {
     border: transparent;
-    background-color: #FAF9FD;
+    background-color: #faf9fd;
 }
 
 .main-create-ticket-ticket-information select {
     padding: 5px;
     background-color: white;
-    color: black;
+    color: #3f3852;
 
     max-width: 70%;
 
@@ -411,7 +431,7 @@ body {
 .main-create-ticket-subject-and-description input {
     padding: 5px;
     background-color: white;
-    color: black;
+    color: #3f3852;
 
     max-width: 60%;
 
@@ -438,8 +458,8 @@ body {
 
 .main-ticket-information-ticket-number input {
     padding: 5px;
-    background-color: #FAF9FD;
-    color: black;
+    background-color: #faf9fd;
+    color: #3f3852;
 
     border-radius: 8px;
     border: 1px solid #3f3852;
@@ -457,7 +477,7 @@ body {
 .main-ticket-information-ticket-information :is(select, input) {
     padding: 5px;
     background-color: white;
-    color: black;
+    color: #3f3852;
 
     max-width: 70%;
 
@@ -467,7 +487,7 @@ body {
 
 .main-ticket-information-user-information input[readonly] {
     border: transparent;
-    background-color: #FAF9FD;
+    background-color: #faf9fd;
 }
 
 /* Ticket Information Subject, Description, and Worknotes Design */
@@ -476,7 +496,7 @@ body {
 .main-ticket-information-worknotes textarea {
     padding: 5px;
     background-color: white;
-    color: black;
+    color: #3f3852;
 
     max-width: 60%;
 
@@ -509,11 +529,22 @@ body {
     display: flex;
     justify-content: flex-end;
     padding-right: 20px;
+    padding-top: 5px;
     gap: 10px;
+    border-top: 1px solid #dcd5f0;
 }
 
-#main-ticket-information-buttons-normal,
-#main-ticket-information-buttons-resolve {
+.main-ticket-information-worknotes-buttons-publish {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 10px;
+}
+
+#main-ticket-information-buttons-cancel,
+#main-ticket-information-buttons-save-changes, /**/
+#main-ticket-information-buttons-resolve,
+#main-ticket-information-worknotes-buttons-publish,
+#main-ticket-information-buttons-reopen {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -524,13 +555,19 @@ body {
     cursor: pointer;
 }
 
-#main-ticket-information-buttons-normal svg,
-#main-ticket-information-buttons-resolve svg {
+#main-ticket-information-buttons-cancel svg,
+#main-ticket-information-buttons-save-changes svg, /**/
+#main-ticket-information-buttons-resolve svg,
+#main-ticket-information-worknotes-buttons-publish svg,
+#main-ticket-information-buttons-reopen svg { 
     height: 20px;
     width: 20px;
 }
 
-#main-ticket-information-buttons-normal {
+#main-ticket-information-buttons-cancel,
+#main-ticket-information-buttons-save-changes,
+#main-ticket-information-worknotes-buttons-publish,
+#main-ticket-information-buttons-reopen { /**/
     background-color: white;
     color: #3f3852;
     border: 1px solid #3f3852;
@@ -542,7 +579,10 @@ body {
     border: 1px solid #3f3852;
 }
 
-#main-ticket-information-buttons-normal:hover {
+#main-ticket-information-buttons-cancel:hover,
+#main-ticket-information-buttons-save-changes:hover,
+#main-ticket-information-worknotes-buttons-publish:hover
+#main-ticket-information-buttons-reopen:hover { /**/
     background-color: #dcd5f0;
     color: #6d5ba6;
 
@@ -552,13 +592,59 @@ body {
     background-color: #6d5ba6;
 }
 
+#main-ticket-information-buttons-reopen {
+    display:none;
+}
+
+.ticket-resolved {
+    background-color: #e5e5e5 !important;
+    color: #777777 !important;
+    cursor: not-allowed;
+}
+
+
 /* Ticket List Design */
 .main-ticket-list-filter,
 .ticket-row {
     display: grid;
     padding: 0 30px;
     grid-template-columns: repeat(8, 1fr);
-    gap: 20px;
+    align-items: center;
+    padding: 10px 15px;
+    border: 1px solid #e5e1ed;
+}
+
+.ticket-row a {
+    color: #6d5ba6;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.ticket-row a:hover {
+    text-decoration: underline;
+}
+
+.ticket-row:nth-child(odd) {
+    background-color: #f5f2fa;
+}
+
+.ticket-row:nth-child(even) {
+    background-color: white;
+}
+
+.main-ticket-list-filter {
+    background-color: white;
+    gap: 10px;
+}
+
+.ticker-row span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ticket-row:hover {
+    background-color: #dcd5f0;
 }
 
 .main-ticket-list-filter-item {
@@ -571,7 +657,7 @@ body {
 .main-ticket-list-filter-item select {
     padding: 5px;
     background-color: white;
-    color: black;
+    color: #3f3852;
 
     box-sizing: border-box;
 
@@ -640,7 +726,7 @@ body {
 
 #main-ticket-list-filter-button:hover {
     background-color: #dcd5f0;
-    color: #6D5BA6;
+    color: #6d5ba6;
 }
 
 #main-ticket-list-filter-button svg {
@@ -687,11 +773,11 @@ body {
 
 #main-ticket-list-filter-clear:hover {
     background-color: #dcd5f0;
-    color: #6D5BA6;
+    color: #6d5ba6;
 }
 
 #main-ticket-list-filter-apply:hover {
-    background-color: #6D5BA6;
+    background-color: #6d5ba6;
 }
 
 #main-ticket-list-filter-clear,
@@ -700,6 +786,28 @@ body {
     min-width: 100px;
     padding: 10px;
     border-radius: 15px;
+}
+
+.main-ticket-list-main-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ticket-list-no-results {
+    padding: 30px;
+    text-align: center;
+    background-color: white;
+    border: 1px solid #e5e1ed;
+    border-radius: 5px;
+    color: #3f3852;
+}
+
+.main-ticket-list-count {
+    margin-top: 10px;
+    color: #3f3852;
+    font-size: 14px;
+    text-align: center;
 }
 
 /*Knowledge Base Design */
@@ -713,7 +821,7 @@ body {
     box-sizing: border-box;
 
     background-color: white;
-    color: black;
+    color: #3f3852;
 
     border-radius: 8px;
     border: 1px solid #3f3852;

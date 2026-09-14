@@ -114,7 +114,7 @@
                             type="text"
                             id="user"
                             name="user"
-                            placeholder="Search user..."
+                            readonly
                         >
 
                         <label for="employee-number">Employee Number</label>
@@ -149,7 +149,7 @@
 
                         <label for="ticket-status">Status</label>
                         <select id="ticket-status" name="ticket-status">
-                            <option value="in-progress">In-progress</option>
+                            <option value="in-progress">In progress</option>
                             <option value="on-hold">On Hold</option>
                             <option value="pending">Pending</option>
                             <option value="resolved">Resolved</option>
@@ -177,8 +177,8 @@
                         <select id="priority" name="priority">
                             <option value="">Select Priority</option>
                             <option value="low">Low</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
                         </select>
 
                         <label for="assigned-department">Assigned Department</label>
@@ -225,16 +225,24 @@
                             placeholder="Enter troubleshooting done..."
                         ></textarea>
 
+                        <div class="main-ticket-information-worknotes-buttons-publish">
+
+                            <button type="button" id="main-ticket-information-worknotes-buttons-publish">
+                                <i data-lucide="pencil"></i>Publish Worknote</button>
+
+                        </div> 
                     </div>
 
                     <div class="main-ticket-information-buttons">
 
-                        <button type="button" id="main-ticket-information-buttons-normal">
+                        <button type="button" id="main-ticket-information-buttons-cancel">
                             <i data-lucide="x"></i>Cancel</button>
-                        <button type="button" id="main-ticket-information-buttons-normal">
+                        <button type="button" id="main-ticket-information-buttons-save-changes">
                             <i data-lucide="pencil-line"></i>Save Changes</button>
                         <button type="button" id="main-ticket-information-buttons-resolve">
                             <i data-lucide="check"></i>Resolve</button>
+                        <button type="button" id="main-ticket-information-buttons-reopen">
+                            <i data-lucide="rotate-ccw"></i>Re-open Ticket</button>
 
                     </div>
 
@@ -248,7 +256,7 @@
     
 
     <!-- Script -->
-    <script>lucide.createIcons()</script> <!-- Lucide Icons -->
+    <script src="script.js"></script>
 
 </body>
 </html>
