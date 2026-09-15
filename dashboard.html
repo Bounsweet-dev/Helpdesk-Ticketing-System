@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | NexusDesk</title>
+
+    <link rel="icon" type="image/svg+xml" href="nexusdesk-favicon.svg">
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Loading Inter Font Family -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Loading Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+</head>
+
+
+<body>
+    
+    <div class="container">
+
+        <!-- Side Bar -->
+
+        <div class="sidebar">
+
+            <div class="sidebar-header">
+
+                <i data-lucide="headset" class="sidebar-logo"></i>
+
+                <div class="sidebar-title">
+
+                    <h1>NexusDesk</h1>
+                    <h3>Support Platform</h3>
+
+                </div>
+
+            </div>
+
+            <div class="sidebar-menu">
+
+                <h4>Navigation</h4>
+                <a href="dashboard.html">
+                    <i data-lucide="layout-dashboard"></i>
+                    Dashboard</a>
+                <a href="create-ticket.html">
+                    <i data-lucide="plus-circle"></i>
+                    Create Ticket</a>
+                <a href="ticket-list.html">
+                    <i data-lucide="ticket"></i>
+                    Ticket List</a>
+                <a href="knowledge-base.html">
+                    <i data-lucide="book"></i>
+                    Knowledge Base</a>
+
+            </div>
+
+            <div class="sidebar-footer">
+
+                <h2>Account</h2>
+                <p>Account Email</p>
+
+            </div>
+
+        </div>
+
+        <!-- Shared -->
+
+        <div class="main-content">
+
+            <div class="main-content-header">
+
+                <h2><i data-lucide="layout-dashboard"></i>Dashboard</h2>
+
+            </div>
+
+            <!-- Dashboard -->
+            <div class="main-dashboard">
+
+                <div class="main-dashboard-title">
+
+                    <h1>Admin Dashboard</h1>
+                    <p>Ticket Handling Overview</p>
+                    
+                </div>
+
+                <div class="main-dashboard-cards">
+
+                    <a href="ticket-list.html" class="card">
+
+                        <h3><i data-lucide="ticket"></i> Tickets</h3>
+                        <p id="dashboard-ticket-card">0</p>
+
+                    </a>
+
+                    <a href="ticket-list.html?filter=unassigned" class="card">
+
+                        <h3><i data-lucide="user-round-x"></i>Unassigned Tickets</h3>
+                        <p id="dashboard-unassigned-ticket-card">0</p>
+
+                    </a>
+
+                    <a href="ticket-list.html?filter=pending" class="card">
+
+                        <h3><i data-lucide="clock"></i>Pending Tickets</h3>
+                        <p id="dashboard-pending-ticket-card">0</p>
+
+                    </a>
+
+                    <a href="ticket-list.html?filter=resolved" class="card">
+
+                        <h3><i data-lucide="circle-check"></i>Resolved Tickets</h3>
+                        <p id="dashboard-resolved-ticket-card">0</p>
+
+                    </a>
+
+                </div>
+
+                <div class="main-dashboard-ticket-tracker">
+
+                    <div class="main-dashboard-recent-tickets">
+
+                        <h2>Recent Tickets</h2>
+
+                        <div class="main-dashboard-recent-tickets-list" id="main-dashboard-recent-tickets-list">
+                        </div>
+
+                        <a href="ticket-list.html" class="main-dashboard-view-all-tickets">View All Tickets -></a>
+
+                    </div>
+
+                    <div class="main-dashboard-priority-tickets">
+
+                        <h2>Ticket Priority Count</h2>
+
+                        <a href="ticket-list.html?filter=priority-high"><span>High Priority</span><p id="dashboard-priority-tickets-high">0</p></a>
+                        <a href="ticket-list.html?filter=priority-medium"><span>Medium Priority</span><p id="dashboard-priority-tickets-medium">0</p></a>
+                        <a href="ticket-list.html?filter=priority-low"><span>Low Priority</span><p id="dashboard-priority-tickets-low">0</p></a>
+                        <a href="ticket-list.html" class="main-dashboard-view-all-tickets">View All Tickets -></a>
+
+                    </div>
+
+                </div>
+
+                <h2 class="main-dashboard-ticket-activity-title">Ticket Activity</h2>
+
+                <div class="main-dashboard-ticket-activity">
+
+                    <div class="main-dashboard-ticket-activity-chart">
+
+                        <canvas id="dashboard-ticket-activity-chart"></canvas>
+                    
+                    </div>
+                        
+                    <div class="main-dashboard-ticket-activity-today">
+
+                        <h2>Created Today: <span id="dashboard-created-today">0</span></h2>
+                        <h2>Resolved Today: <span id="dashboard-resolved-today">0</span></h2>
+
+                    </div>
+
+                </div>
+
+                
+                
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- Script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>

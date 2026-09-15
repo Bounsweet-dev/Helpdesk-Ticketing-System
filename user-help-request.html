@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Request Help | NexusDesk</title>
+
+    <link rel="icon" type="image/svg+xml" href="nexusdesk-favicon.svg">
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Loading Inter Font Family -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Loading Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+</head>
+
+
+<body>
+    
+    <div class="container">
+
+        <!-- Side Bar -->
+
+        <div class="sidebar">
+
+            <div class="sidebar-header">
+
+                <i data-lucide="headset" class="sidebar-logo"></i>
+
+                <div class="sidebar-title">
+
+                    <h1>NexusDesk</h1>
+                    <h3>Support Platform</h3>
+
+                </div>
+
+            </div>
+
+            <div class="sidebar-menu">
+
+                <h4>Navigation</h4>
+
+                <a href="user-help-request.html">
+                    <i data-lucide="wrench"></i>
+                    Ask for Assistance</a>
+                <a href="knowledge-base.html">
+                    <i data-lucide="book"></i>
+                    Knowledge Base</a>
+
+            </div>
+
+            <div class="sidebar-footer">
+
+                <h2>Account</h2>
+                <p>Account Email</p>
+
+            </div>
+
+        </div>
+
+        <div class="user-main-content">
+
+            <div class="main-content-header">
+
+                <h2><i data-lucide="wrench"></i>Ask for Assistance</h2>
+
+            </div>
+
+            <div class="user-main-ask-for-help-title">
+
+                <h1>Submit a Help Request</h1>
+                <p>Tell us what you need help with and we'll assist you.</p>
+
+            </div>
+
+            <div class="user-main-ask-for-help-user-information">
+
+                <h2>Your Information</h2>
+
+                <label for="help-username">Username</label>
+                <input
+                    type="text"
+                    id="help-username"
+                    name="help-username"
+                    readonly
+                >
+
+                <label for="help-email">Email</label>
+                <input
+                    type="text"
+                    id="help-email"
+                    name="help-email"
+                    readonly
+                >
+
+                <h2>Request Details</h2>
+
+                <label for="help-subject">Subject</label>
+                <input
+                    type="text"
+                    id="help-subject"
+                    name="help-subject"
+                    placeholder="Summary of your issue..."
+                >
+
+                <label for="help-description">Description</label>
+                <textarea
+                    id="help-description"
+                    name="help-description"
+                    placeholder="Describe your issue..."
+                ></textarea>
+
+                <div class="user-main-ask-for-help-buttons">
+
+                    <button type="button" class="user-main-ask-help-cancel-button"><i data-lucide="x"></i>Cancel</button>                    
+                    <button type="button" class="user-main-ask-help-submit-button"><i data-lucide="circle-plus"></i>Submit</button>
+
+                </div>
+
+            </div>
+
+            <div class="user-main-ask-for-help-success">
+
+                <i data-lucide="circle-check"></i>
+                <h1>Request submitted successfully</h1>
+                <p>Your help request has been submitted to the IT Support team.</p>
+                <p>For immediate assistance, please call: 123-1234-5678</p>
+
+                <button type="button" class="user-main-ask-for-help-create-another-button">
+                    Submit Another Help Request</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

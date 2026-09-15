@@ -6,7 +6,7 @@
 
     <title>Knowledge Base | NexusDesk</title>
 
-    <link rel="icon" type="image/svg+xml" href="nexusdesk-logo.svg">
+    <link rel="icon" type="image/svg+xml" href="nexusdesk-favicon.svg">
 
     <link rel="stylesheet" href="style.css">
 
@@ -42,7 +42,7 @@
             <div class="sidebar-menu">
 
                 <h4>Navigation</h4>
-                <a href="index.html">
+                <a href="dashboard.html">
                     <i data-lucide="layout-dashboard"></i>
                     Dashboard</a>
                 <a href="create-ticket.html">
@@ -76,42 +76,54 @@
 
             </div>
 
-            <div class="main-knowledge-base-article">
+            <div class="main-knowledge-base-article-page">
 
                 <!-- Knowledge Base Title -->
 
-                <div class="main-knowledge-base-article-title">
+                <div class="main-knowledge-base-article-page-title">
 
-                    <h1>Knowledge Base</h1>
-                    <p>How to Troubleshoot a Computer that Won't Boot</p>
-                    <p>Hardware • Updated Sep 8, 2026 • 5 min read</p>
+                    <h1 id="knowledge-base-article-title"></h1>
+                    <div class="main-knowledge-base-article-page-meta">
+
+                        <span>
+
+                            <i data-lucide="folder"></i>
+                            <span id="knowledge-base-article-category"></span>
+
+                        </span>
+
+                        <span>
+
+                            <i data-lucide="calendar"></i>
+                            <span id="knowledge-base-article-date"></span>
+
+                        </span>
+
+                        <span>
+
+                            <i data-lucide="clock"></i>
+                            <span id="knowledge-base-article-read-time"></span>
+
+                        </span>
+
+                    </div>
 
                 </div>
 
-                <div class="main-knowledge-base-article-content">
-
-                    <p>Problem</p>
-                    <p>The computer does not power on or fails to boot into Windows. <br><br>
-                    Possible Causes: <br>
-                    - Lose power connection<br>
-                    - Faulty RAM<br>
-                    - Storage Failure<br>
-                    - Operating system issue<br><br>
-                    Troubleshooting Steps:<br><br>
-                    1. Check the power cable.<br>
-                    2. Verify that the computer is receiving power.<br>
-                    3. etc...<br><br>
-                    Resolution:<br>
-                    If the computer successfully boots after these steps, <br>
-                    verify that the issue does not occur again.
-                    </p>
-
+                <div class="main-knowledge-base-article-page-content" id="knowledge-base-article-content">
                 </div>
 
-                <div class="main-knowledge-page-article-related">
+                <a href="knowledge-base.html" class="knowledge-base-article-back">
+                    <i data-lucide="arrow-left"></i>
+                    Back
+                </a>
+
+                <div class="main-knowledge-base-article-page-related">
 
                     <h2>Related Articles</h2>
-                    <p>Article 1<br>Article 2</p>
+
+                    <div id="knowledge-base-related-articles">
+                    </div>
 
                 </div>
 
@@ -122,7 +134,7 @@
     </div>
 
     <!-- Script -->
-    <script>lucide.createIcons()</script> <!-- Lucide Icons -->
+    <script src="script.js"></script>
 
 </body>
 

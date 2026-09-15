@@ -13,6 +13,290 @@ body {
     min-height: 100vh;
 }
 
+/* Login Page Design */
+
+.login-page {
+    display: grid;
+    grid-template-columns: 70% 30%;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* Login Page Background */
+
+.login-page-background {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-image: linear-gradient(
+        rgba(63,56,82,0.75),
+        rgba(109,91,166,0.75)
+    ),
+    url("login-background.jpg");
+
+    background-size: cover;
+    background-position: center;
+
+    overflow: hidden;
+}
+
+.login-page-background::before {
+    content: "";
+    position: absolute;
+    width: 500px;
+    height: 500px;
+
+    background-color: #dcd5f0;
+    border-radius: 50%;
+    opacity: 0.15;
+    filter: blur(80px);
+}
+
+.login-page-background-content {
+    position: relative;
+    text-align: center;
+    color: white;
+}
+
+.login-page-background-content svg {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 20px;
+}
+
+.login-page-background-content h1 {
+    margin: 0;
+    font-size: 42px;
+}
+
+.login-page-background-content p {
+    margin-top: 5px;
+    font-size: 18px;
+}
+
+/* Login Panel */
+
+.login-page-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background-color: #f5f2fa;
+}
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 380px;
+}
+
+/* Login Logo */
+
+.login-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 50px;
+}
+
+.login-logo > svg {
+    width: 50px;
+    height: 50px;
+
+    color: #6d5ba6;
+}
+
+.login-logo h1 {
+    margin: 0;
+    color: #3f3852;
+    font-size: 28px;
+}
+
+.login-logo p {
+    margin: 2px 0 0;
+    color: #6d5ba6;
+    font-size: 14px;
+}
+
+/* Login Header */
+
+.login-header {
+    margin-bottom: 30px;
+}
+
+.login-header h2 {
+    margin: 0 0 8px;
+    color: #3f3852;
+    font-size: 26px;
+}
+
+.login-header p {
+    margin: 0;
+    color: #6f6a7d;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Login Fields */
+
+.login-field {
+    margin-bottom: 20px;
+}
+
+.login-field label {
+    display: block;
+    margin-bottom: 7px;
+    color: #3f3852;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.login-field input {
+    width: 100%;
+    padding: 11px 12px;
+    box-sizing: border-box;
+    background-color: white;
+    color: #3f3852;
+    border: 1px solid #d3cfdb;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-field input:focus {
+    border-color: #6d5ba6;
+    box-shadow: 0 0 0 3px #dcd5f0;
+}
+
+/* Password Box */
+
+.login-password {
+    position: relative;
+}
+
+.login-password input {
+    padding-right: 45px;
+}
+
+.login-password button {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    transform: translateY(-50%);
+    background: none;
+    color: #6f6a7d;
+    border: none;
+    cursor: pointer;
+}
+
+.login-password button:hover {
+    color: #6d5ba6;
+}
+
+.login-password svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Login Options */
+
+.login-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    font-size: 13px;
+}
+
+.login-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #3f3852;
+    cursor: pointer;
+}
+
+.login-options input {
+    accent-color: #6d5ba6;
+}
+
+.login-options a {
+    color: #6d5ba6;
+    text-decoration: none;
+}
+
+.login-options a:hover {
+    color: #3f3852;
+    text-decoration: underline;
+}
+
+/* Login Button */
+
+.login-button {
+    width: 100%;
+    padding: 11px;
+    background-color: #6d5ba6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.login-button:hover {
+    background-color: #3f3852;
+}
+
+/* Login Footer */
+
+.login-footer {
+    margin-top: 30px;
+    text-align: center;
+    color: #8a8495;
+    font-size: 12px;
+}
+
+/* Login Error */
+
+.login-error {
+    display: none;
+    margin: 10px 0 0;
+    color: #b04a4a;
+    font-size: 13px;
+    text-align: center;
+}
+
+.login-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Creator Mark */
+
+.login-creator {
+    position: absolute;
+    left: 25px;
+    bottom: 20px;
+
+    margin: 0;
+    color: white;
+    font-size: 13px;
+    opacity: 0.7;
+}
+
 /* Sidebar Design */
 
 .sidebar {
@@ -734,6 +1018,13 @@ body {
     height: 16px;
 }
 
+#main-ticket-list-filter-button.active {
+    background-color: #dcd5f0;
+    color:#6d5ba6;
+    border: 3px solid #6d5ba6;
+    transition: 0.5s
+}
+
 .main-ticket-list-filter-change {
     grid-column: 1 / -1;
     display: flex;
@@ -855,12 +1146,56 @@ body {
     border-radius: 8px;
     border: 1px solid #d3d3d3;
 
+    cursor: pointer;
+
     transition: background-color 0.3s ease, color 0.3 ease;
 }
 
 .card-knowledge-base:hover {
     background-color: #dcd5f0;
     color: #6d5ba6;
+}
+
+.card-knowledge-base.active {
+    background-color: #dcd5f0;
+    color: #6d5ba6;
+    border: 3px solid #6d5ba6;
+    transition: 0.2s;
+}
+
+/*Knowledge Base Article List */
+
+.knowledge-base-no-results {
+    padding: 30px;
+    text-align: center;
+    color: #3f3852;
+}
+
+.knowledge-base-article {
+    padding: 5px 15px;
+    cursor: pointer;
+    
+    border-bottom: 1px solid #d3d3d3;
+
+    background-color: white;
+    transition: background-color 0.2s ease;
+}
+
+.knowledge-base-article h3 ,
+.knowledge-base-article p {
+    margin: 5px 3px 0 0;
+}
+
+.knowledge-base-article span {
+    display: block;
+    margin: 2px 0;
+}
+
+.knowledge-base-article:hover {
+    border-radius: 8px;
+    background-color: #dcd5f0;
+
+    transition: background-color 0.5s ease;
 }
 
 .main-knowledge-base-articles {
@@ -872,6 +1207,317 @@ body {
     margin-top: 1px;
 }
 
-.main-knowledge-base-article {
+/* Knowledge Base Main Article Page Design */
+
+.main-knowledge-base-article-page {
     padding: 0 30px;
+}
+
+.main-knowledge-base-article-page-meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    color: #6d5ba6;
+}
+
+.main-knowledge-base-article-page-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.main-knowledge-base-article-page-meta svg {
+    width: 16px;
+    height: 16px;
+}
+
+.main-knowledge-base-article-page-content {
+    margin: 30px;
+    width: 77%;
+    padding: 25px;
+
+    background-color: white;
+
+    border: 1px solid #e5e1ed;
+    border-radius: 8px;
+
+    color: #3f3852;
+}
+
+.main-knowledge-base-article-page-content h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-top: 25px;
+    margin-bottom: 10px;
+
+    color: #6d5ba6;
+}
+
+.main-knowledge-base-article-page-content h2:first-child {
+    margin-top: 0;
+}
+
+.main-knowledge-base-article-page-content svg {
+    width: 20px;
+    height: 20px;
+}
+
+.main-knowledge-base-article-page-content ul,
+.main-knowledge-base-article-page-content ol {
+    padding-left: 25px;
+}
+
+.main-knowledge-base-article-page-content li {
+    margin-bottom: 8px;
+}
+
+/* Knowledge Base Main Article Page Back Button */
+
+.knowledge-base-article-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-left: 30px;
+    margin-bottom: 20px;
+    color: #6d5ba6;
+    text-decoration: none;
+    font-weight: 600;
+
+    transition: color 0.2s ease;
+}
+
+.knowledge-base-article-back:hover {
+    color: #3f3852
+}
+
+.knowledge-base-article-back svg {
+    width: 18px;
+    height: 18px;
+}
+
+.knowledge-base-article-not-found {
+    padding: 30px;
+    text-align: center;
+    background-color: white;
+    border: 1px solid #e5e1ed;
+    border-radius: 8px;
+    color: #3f3852;
+}
+
+.main-knowledge-base-article-page-related {
+    margin: 0 30px 30px;
+    width: 77%;
+}
+
+.main-knowledge-base-article-page-related h2 {
+    color: #3f3852
+}
+
+.knowledge-base-related-article {
+    display: block;
+    padding: 15px;
+    margin-bottom: 10px;
+    
+    background-color: white;
+    color: #3f3852;
+
+    text-decoration: none;
+
+    border: 1px solid #e5e1ed;
+    border-radius: 8px;
+
+    transition: background-color 0.5s ease;
+}
+
+.knowledge-base-related-article:hover {
+    background-color: #dcd5f0;
+}
+
+.knowledge-base-related-article h3 {
+    margin: 0 0 5px;
+    color: #6d5ba6;
+}
+
+.knowledge-base-related-article p {
+    margin: 0;
+}
+
+/* User Help Request Design */
+.user-main-content {
+    flex: 1;
+    min-width: 0;
+    min-height: 100vh;
+    background-color: #f5f7fa;
+}
+
+.user-main-ask-for-help-title {
+    padding: 0 30px;
+}
+
+.user-main-ask-for-help-user-information {
+    display: flex;
+    flex-direction: column;
+
+    padding: 0 30px;
+}
+
+.user-main-ask-for-help-user-information h2 {
+    margin-bottom: 15px;
+}
+
+.user-main-ask-for-help-user-information #help-username,
+.user-main-ask-for-help-user-information #help-email {
+    padding: 5px;
+
+    background-color: #f5f7fa;
+    color: #6f6a7d;
+
+    border: none;
+    box-sizing: border-box;
+    width: 20%;
+}
+
+.user-main-ask-for-help-user-information #help-subject {
+    padding: 5px;
+
+    background-color: white;
+    color: #3f3852;
+
+    border-radius: 8px;
+    border: 1px solid #3f3852;
+
+    box-sizing: border-box;
+    width: 60%;
+}
+
+.user-main-ask-for-help-user-information input[read-only] {
+    border: transparent;
+    background-color: #faf9fd;
+}
+
+.user-main-ask-for-help-user-information textarea {
+    padding: 5px;
+
+    background-color: white;
+    color: #3f3852;
+
+    width: 60%;
+    box-sizing: border-box;
+
+    border-radius: 8px;
+    border: 1px solid #3f3852;
+
+    resize: none;
+    height: 70px;
+}
+
+.user-main-content > .user-main-ask-help-cancel-button {
+    margin-left: 30px;
+}
+
+.user-main-content > .user-main-ask-help-submit-button {
+    margin-left: 10px;
+}
+
+.user-main-ask-for-help-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    width: 60%;
+    margin-top: 10px;
+}
+
+.user-main-ask-help-cancel-button,
+.user-main-ask-help-submit-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    min-width: 100px;
+    padding: 10px;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+.user-main-ask-help-cancel-button svg,
+.user-main-ask-help-submit-button svg {
+    height: 20px;
+    width: 20px;
+}
+
+.user-main-ask-help-cancel-button {
+    background-color: white;
+    color: #3f3852;
+    border: 1px solid #3f3852;
+}
+
+.user-main-ask-help-cancel-button:hover {
+    background-color: #dcd5f0;
+    color: #6d5ba6;
+}
+
+.user-main-ask-help-submit-button {
+    background-color: #3f3852;
+    color: white;
+    border: 1px solid #3f3852;
+}
+
+.user-main-ask-help-submit-button:hover {
+    background-color: #6d5ba6;
+}
+
+/* User Help Success */
+
+.user-main-ask-for-help-success {
+    display: none;
+
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 60px 30px;
+    text-align: center;
+}
+
+.user-main-ask-for-help-success svg {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 15px;
+
+    color: #6d5ba6;
+}
+
+.user-main-ask-for-help-success h1 {
+    margin: 0 0 10px;
+    color: #3f3852;
+}
+
+.user-main-ask-for-help-success p {
+    margin: 0 0 25px;
+    color: #6f6a7d;
+}
+
+.user-main-ask-for-help-create-another-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    color: #6d5ba6;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 600;
+
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    transition: color 0.2s ease;
+}
+
+.user-main-ask-for-help-create-another-button:hover {
+    color: #3f3852;
 }
