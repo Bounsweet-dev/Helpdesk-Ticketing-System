@@ -98,13 +98,20 @@
                         <h2>User Information</h2>
 
                         <label for="user">User</label>
-                        <input
-                            type="text"
-                            id="user"
-                            name="user"
-                            placeholder="Search user..."
-                            class="main-create-ticket-user-information-search-user"
-                        >
+                        <div class="main-create-ticket-user-search">
+
+                            <input
+                                type="text"
+                                id="user"
+                                name="user"
+                                placeholder="Search user..."
+                                class="main-create-ticket-user-information-search-user"
+                                autocomplete="off"
+                            >
+
+                            <div id="create-ticket-user-results" class="create-ticket-user-results"></div>
+
+                        </div>
 
                         <label for="employee-number">Employee Number</label>
                         <input

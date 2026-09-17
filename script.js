@@ -1,3 +1,5 @@
+
+
 // Lucide Icons
 lucide.createIcons();
 
@@ -13,6 +15,7 @@ const ticketListPage = document.querySelector(".main-ticket-list");
 const knowledgeBasePage = document.querySelector(".main-knowledge-base");
 const knowledgeBaseArticlePage = document.querySelector(".main-knowledge-base-article-page");
 const userHelpPage = document.querySelector(".user-main-ask-for-help-user-information");
+const ticketWorknotesHistory = document.getElementById("main-ticket-information-worknotes-history");
 
 // =========================================
 //    Temporary User Data (To Be Removed)
@@ -186,26 +189,6 @@ const tickets = [
 //    Shared Functions
 // ======================
 
-function generateTicketNumber() {
-
-    let ticketCounter = localStorage.getItem("ticketCounter");
-
-    if (ticketCounter === null) {
-
-        ticketCounter = 1000;
-
-    } else {
-
-        ticketCounter = parseInt(ticketCounter);
-        ticketCounter++;
-    };
-
-    localStorage.setItem("ticketCounter", ticketCounter);
-
-    return "INC" + ticketCounter;
-
-}
-
 // Getting tickets from the local storage
 
 function getTickets() {
@@ -245,12 +228,22 @@ function getTickets() {
 //    Login Page Scripts
 // ========================
 
+
 if (loginPage) {
+
+    // Login elements
+
+    const loginForm = document.getElementById("login-form");
+    const loginUsername = document.getElementById("login-username");
+    const loginPassword = document.getElementById("login-password");
+    const loginRemember = document.getElementById("login-remember");
+    const loginPasswordToggle = document.getElementById("login-password-toggle");
+    const loginError = document.getElementById("login-error");
+    const loginButton = document.querySelector(".login-button");
+    const loginForgotPassword = document.getElementById("login-forgot-password");
 
     // Login remember me
 
-    const loginUsername = document.getElementById("login-username");
-    const loginRemember = document.getElementById("login-remember");
     const rememberedUsername = localStorage.getItem("rememberedUsername");
 
     if (rememberedUsername) {
@@ -262,8 +255,6 @@ if (loginPage) {
 
     // Login password eye icon
 
-    const loginPassword = document.getElementById("login-password");
-    const loginPasswordToggle = document.getElementById("login-password-toggle");
     loginPasswordToggle.addEventListener("click", function() {
 
         if (loginPassword.type === "password") {
@@ -282,71 +273,102 @@ if (loginPage) {
 
     });
 
-    // Temporary login
+    // Login
 
-    const loginForm = document.getElementById("login-form");
-    const loginError = document.getElementById("login-error");
-    loginForm.addEventListener("submit", function(event) {
+    loginForm.addEventListener("submit", async function(event) {
 
         event.preventDefault();
 
-        const username = document.getElementById("login-username").value;
-        const password = document.getElementById("login-password").value;
-        const loginButton = document.querySelector(".login-button");
+        const username = loginUsername.value.trim();
+        const password = loginPassword.value;
 
         loginError.style.display = "none";
-
-        loginButton.textContent = "Loggin in...";
         loginButton.disabled = true;
+        loginButton.textContent = "Logging in...";
 
-        setTimeout(function() {
+        try {
 
-            if (
-                username === "admin" &&
-                password === "admin123"
-            ) {
+            const response = await fetch("/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
 
-                if (loginRemember.checked) {
+            const data = await response.json();
 
-                    localStorage.setItem(
-                        "rememberedUsername", 
-                        username
-                    );
+            if (!response.ok) {
 
-                } else {
+                loginError.textContent =
+                    data.error || "Invalid username or password.";
 
-                    localStorage.removeItem(
-                        "rememberedUsername"
-                    );
+                loginError.style.display = "block";
 
-                }
+                return;
+            }
 
-                window.location.href = "dashboard.html";
+            // Remember username only, never the password
+
+            if (loginRemember.checked) {
+
+                localStorage.setItem(
+                    "rememberedUsername",
+                    username
+                );
 
             } else {
 
-                loginError.style.display = "block";
-                loginButton.textContent = "Login";
-                loginButton.disabled = false;
+                localStorage.removeItem(
+                    "rememberedUsername"
+                );
 
             }
 
-        });
+            if (data.user.role === "employee") {
 
-    }, 800);
-    
+                window.location.href = "user-help-request.html";
+
+            } else {
+
+                window.location.href = "dashboard.html";
+
+            }
+
+        } catch (error) {
+
+            console.error("Login request failed:", error);
+
+            loginError.textContent = "Unable to connect to the server.";
+            loginError.style.display = "block";
+
+        } finally {
+
+            loginButton.disabled = false;
+            loginButton.textContent = "Login";
+
+        }
+
+    });
+
+    // Clear login error when user starts typing
+
     loginForm.addEventListener("input", function() {
         loginError.style.display = "none";
     });
 
     // Forgot password
 
-    const loginForgotPassword = document.getElementById("login-forgot-password");
     loginForgotPassword.addEventListener("click", function(event) {
 
         event.preventDefault();
 
         alert("Password reset page under construction.");
+
     });
 
 }
@@ -357,222 +379,270 @@ if (loginPage) {
 
 if (dashboardPage) {
 
-    const tickets = getTickets();
+    // Dashboard API Helper
 
-    // Dashboard Functions
+    async function getDashboardTickets() {
 
-    function loadRecentTickets() {
+        try {
 
-        const recentTicketsList = document.getElementById("main-dashboard-recent-tickets-list");
+            const response = await fetch("/api/tickets",  {
+                credentials: "include"
+            });
 
-        recentTicketsList.innerHTML = "";
+            if (!response.ok) {
+                throw new Error("Failed to retrieve tickets.");
+            }
 
-        // Showing the most recent tickets first
+            const tickets = await response.json();
 
-        const recentTickets = [...tickets].reverse().slice(0,5);
+            return tickets.map(function(ticket) {
 
-        recentTickets.forEach(function(ticket) {
+                return {
 
-            const ticketLink = document.createElement("a");
-            ticketLink.href = "ticket-main-page.html";
-            ticketLink.textContent = ticket.ticketNumber + " - " + ticket.subject;
-            
-            ticketLink.addEventListener("click", function() {
+                    ticketId: ticket.ticket_id,
+                    ticketNumber: ticket.ticket_number,
+                    user: ticket.requester,
+                    employeeNumber: ticket.employee_number,
+                    employeeEmail: ticket.email,
+                    employeeJobTitle: ticket.job_title,
+                    category: ticket.category,
+                    priority: ticket.priority,
+                    subject: ticket.subject,
+                    description: ticket.description,
+                    status: ticket.status,
+                    assignedTo: ticket.assigned_to || "",
+                    assignedDepartment: ticket.assigned_department || "",
+                    createdDate: new Date(ticket.created_at).toLocaleDateString(),
+                    resolvedDate: ticket.resolved_at
+                        ? new Date(ticket.resolved_at).toLocaleDateString()
+                        : null
 
-                localStorage.setItem(
-                    "currentTicket",
-                    ticket.ticketNumber
-                );
+                };
 
             });
 
-            recentTicketsList.appendChild(ticketLink);
+            
 
-        });
+        } catch (error) {
+            console.error("Failed to load dashboard tickets:", error);
+            return [];
+        }
 
     }
 
-    // Dashboard Cards
+    async function initializeDashboard() {
 
-    const totalTickets = tickets.length;
+        const tickets = await getDashboardTickets();
 
-    const unassignedTickets = tickets.filter(function(ticket) {
+        // Dashboard Functions
 
-        return(
-            !ticket.assignedTo
-        );
+        function loadRecentTickets() {
 
-    }).length;
+            const recentTicketsList = document.getElementById("main-dashboard-recent-tickets-list");
 
-    const pendingTickets = tickets.filter(function(ticket) {
+            recentTicketsList.innerHTML = "";
 
-        return ticket.status === "pending";
+            // Showing the most recent tickets first
 
-    }).length;
+            const recentTickets = tickets.slice(0, 5);
 
-    const resolvedTickets = tickets.filter(function(ticket){
+            recentTickets.forEach(function(ticket) {
 
-        return ticket.status === "resolved";
+                const ticketLink = document.createElement("a");
+                ticketLink.href = `ticket-main-page.html?id=${ticket.ticketId}`;
+                ticketLink.textContent = ticket.ticketNumber + " - " + ticket.subject;
 
-    }).length;
+                recentTicketsList.appendChild(ticketLink);
 
-    document.getElementById("dashboard-ticket-card").textContent = totalTickets;
-    document.getElementById("dashboard-unassigned-ticket-card").textContent = unassignedTickets;
-    document.getElementById("dashboard-pending-ticket-card").textContent = pendingTickets;
-    document.getElementById("dashboard-resolved-ticket-card").textContent = resolvedTickets;
-
-    // Recent ticket list
-
-    loadRecentTickets();
-
-    // Priority tickets
-
-    const highPriorityTickets = tickets.filter(function(ticket) {
-
-        return ticket.priority === "high";
-
-    }).length;
-
-    const mediumPriorityTickets = tickets.filter(function(ticket) {
-
-        return ticket.priority === "medium";
-
-    }).length; 
-
-    const lowPriorityTickets = tickets.filter(function(ticket) {
-
-        return ticket.priority === "low";
-
-    }).length;
-
-    document.getElementById("dashboard-priority-tickets-high").textContent = highPriorityTickets;
-    document.getElementById("dashboard-priority-tickets-medium").textContent = mediumPriorityTickets;
-    document.getElementById("dashboard-priority-tickets-low").textContent = lowPriorityTickets;
-
-    // Graph Scripts
-
-    // tickets created on current day
-
-    const today = new Date().toLocaleDateString();
-
-    const createdToday = tickets.filter(function(ticket) {
-        return ticket.createdDate === today;
-    }).length;
-
-    const resolvedToday = tickets.filter(function(ticket) {
-
-        return (
-            ticket.status === "resolved" &&
-            ticket.createdDate === today
-        );
-
-    }).length; 
-
-    document.getElementById("dashboard-created-today").textContent = createdToday;
-    document.getElementById("dashboard-resolved-today").textContent = resolvedToday;
-
-    // Ticket Activity Graph
-
-    function getTicketActivity() {
-
-        const activity = [];
-
-        for (let i = 6; i >= 0; i--) {
-
-            const date = new Date();
-
-            date.setDate(date.getDate() - i);
-
-            const dateString = date.toLocaleDateString();
-
-            const created = tickets.filter(function(ticket) {
-
-                return ticket.createdDate === dateString;
-
-            }).length;
-
-            const resolved = tickets.filter(function(ticket) {
-
-                return ticket.resolvedDate === dateString;
-
-            }).length;
-
-            activity.push({
-                date: dateString,
-                created: created,
-                resolved: resolved
             });
 
         }
-        
-        return activity;
 
-    }
+        // Dashboard Cards
 
-    // Converting data into array and making the chart
+        const totalTickets = tickets.length;
 
-    function loadTicketActivityChart() {
+        const unassignedTickets = tickets.filter(function(ticket) {
 
-        const activity = getTicketActivity();
+            return(
+                !ticket.assignedTo
+            );
 
-        const chartLabels = activity.map(function(day) {
-            return day.date;
-        });
+        }).length;
 
-        const createdData = activity.map(function(day) {
-            return day.created;
-        });
+        const pendingTickets = tickets.filter(function(ticket) {
 
-        const resolvedData = activity.map(function(day) {
-            return day.resolved;
-        });
+            return ticket.status === "pending";
 
-        const chart = new Chart(
+        }).length;
 
-            document.getElementById("dashboard-ticket-activity-chart"),
-            {
-                type: "line",
-                data: {
-                    labels: chartLabels,
+        const resolvedTickets = tickets.filter(function(ticket){
 
-                    datasets: [
-                        {
-                            label: "Created",
-                            data: createdData
-                        },
-                        {
-                            label: "Resolved",
-                            data: resolvedData
-                        }
-                    ]
-                },
+            return ticket.status === "resolved";
 
-                options: {
-                    responsive: true,
+        }).length;
 
+        document.getElementById("dashboard-ticket-card").textContent = totalTickets;
+        document.getElementById("dashboard-unassigned-ticket-card").textContent = unassignedTickets;
+        document.getElementById("dashboard-pending-ticket-card").textContent = pendingTickets;
+        document.getElementById("dashboard-resolved-ticket-card").textContent = resolvedTickets;
 
-                    plugins: {
-                        legend: {
-                            display: true
-                        }
+        // Recent ticket list
+
+        loadRecentTickets();
+
+        // Priority tickets
+
+        const highPriorityTickets = tickets.filter(function(ticket) {
+
+            return ticket.priority === "high";
+
+        }).length;
+
+        const mediumPriorityTickets = tickets.filter(function(ticket) {
+
+            return ticket.priority === "medium";
+
+        }).length; 
+
+        const lowPriorityTickets = tickets.filter(function(ticket) {
+
+            return ticket.priority === "low";
+
+        }).length;
+
+        document.getElementById("dashboard-priority-tickets-high").textContent = highPriorityTickets;
+        document.getElementById("dashboard-priority-tickets-medium").textContent = mediumPriorityTickets;
+        document.getElementById("dashboard-priority-tickets-low").textContent = lowPriorityTickets;
+
+        // Graph Scripts
+
+        // tickets created on current day
+
+        const today = new Date().toLocaleDateString();
+
+        const createdToday = tickets.filter(function(ticket) {
+            return ticket.createdDate === today;
+        }).length;
+
+        const resolvedToday = tickets.filter(function(ticket) {
+
+            return (
+                ticket.status === "resolved" &&
+                ticket.resolvedDate === today
+            );
+
+        }).length;
+
+        document.getElementById("dashboard-created-today").textContent = createdToday;
+        document.getElementById("dashboard-resolved-today").textContent = resolvedToday;
+
+        // Ticket Activity Graph
+
+        function getTicketActivity() {
+
+            const activity = [];
+
+            for (let i = 6; i >= 0; i--) {
+
+                const date = new Date();
+
+                date.setDate(date.getDate() - i);
+
+                const dateString = date.toLocaleDateString();
+
+                const created = tickets.filter(function(ticket) {
+
+                    return ticket.createdDate === dateString;
+
+                }).length;
+
+                const resolved = tickets.filter(function(ticket) {
+
+                    return ticket.resolvedDate === dateString;
+
+                }).length;
+
+                activity.push({
+                    date: dateString,
+                    created: created,
+                    resolved: resolved
+                });
+
+            }
+            
+            return activity;
+
+        }
+
+        // Converting data into array and making the chart
+
+        function loadTicketActivityChart() {
+
+            const activity = getTicketActivity();
+
+            const chartLabels = activity.map(function(day) {
+                return day.date;
+            });
+
+            const createdData = activity.map(function(day) {
+                return day.created;
+            });
+
+            const resolvedData = activity.map(function(day) {
+                return day.resolved;
+            });
+
+            const chart = new Chart(
+
+                document.getElementById("dashboard-ticket-activity-chart"),
+                {
+                    type: "line",
+                    data: {
+                        labels: chartLabels,
+
+                        datasets: [
+                            {
+                                label: "Created",
+                                data: createdData
+                            },
+                            {
+                                label: "Resolved",
+                                data: resolvedData
+                            }
+                        ]
                     },
 
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepsize: 1
+                    options: {
+                        responsive: true,
+
+
+                        plugins: {
+                            legend: {
+                                display: true
+                            }
+                        },
+
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepsize: 1
+                                }
                             }
                         }
                     }
                 }
-            }
 
-        );
+            );
+
+        }
+
+        loadTicketActivityChart();
 
     }
 
-    loadTicketActivityChart();
+    initializeDashboard();
 
 }
 
@@ -588,72 +658,158 @@ if (createTicketPage) {
     const employeeNumberInput = document.getElementById("employee-number");
     const employeeEmailInput = document.getElementById("employee-email");
     const employeeJobTitleInput = document.getElementById("employee-job-title");
+
     const categoryInput = document.getElementById("category");
     const priorityInput = document.getElementById("priority");
     const subjectInput = document.getElementById("subject");
     const descriptionInput = document.getElementById("description");
 
-    const cancelButton = document.querySelector(".main-create-ticket-buttons-cancel");
-    const createButton = document.querySelector(".main-create-ticket-buttons-create");
+    const userResults = document.getElementById("create-ticket-user-results");
 
-    // Create Ticket Functions
+    const cancelButton = document.querySelector(
+        ".main-create-ticket-buttons-cancel"
+    );
+
+    const createButton = document.querySelector(
+        ".main-create-ticket-buttons-create"
+    );
+
+    // Selected User
+
+    let selectedUserId = null;
+    let searchTimeout = null;
+
+    // Search Users
 
     function searchUser() {
 
-        const searchValue = userInput.value.toLowerCase().trim();
+        const searchValue = userInput.value.trim();
 
-        // Clear Information
+        selectedUserId = null;
 
         employeeNumberInput.value = "";
         employeeEmailInput.value = "";
         employeeJobTitleInput.value = "";
 
-        // Stop if User Input is Empty
+        userResults.innerHTML = "";
+        userResults.style.display = "none";
 
         if (searchValue === "") {
             return;
         }
 
-        // Find User
+        clearTimeout(searchTimeout);
 
-        const foundUser = users.find(function(user) {
+        searchTimeout = setTimeout(async function() {
 
-            return user.name.toLowerCase().includes(searchValue);
+            try {
 
-        });
+                const response = await fetch(
+                    `/api/users/search?query=${encodeURIComponent(searchValue)}`,
+                    {
+                        credentials: "include"
+                    }
+                );
 
-        // Found User
+                if (!response.ok) {
+                    throw new Error("Failed to search users.");
+                }
 
-        if (foundUser) {
+                const users = await response.json();
 
-            employeeNumberInput.value = foundUser.employeeNumber;
-            employeeEmailInput.value = foundUser.email;
-            employeeJobTitleInput.value = foundUser.jobTitle;
-            
-        }
+                if (users.length === 0) {
+
+                    const noResults = document.createElement("div");
+
+                    noResults.classList.add(
+                        "create-ticket-user-no-results"
+                    );
+
+                    noResults.textContent = "No users found.";
+
+                    userResults.appendChild(noResults);
+                    userResults.style.display = "block";
+
+                    return;
+                }
+
+                users.forEach(function(user) {
+
+                    const userButton = document.createElement("button");
+
+                    userButton.type = "button";
+                    userButton.classList.add(
+                        "create-ticket-user-result"
+                    );
+
+                    const userName = document.createElement("span");
+
+                    userName.classList.add(
+                        "create-ticket-user-result-name"
+                    );
+
+                    userName.textContent = user.full_name;
+
+                    const userDetails = document.createElement("span");
+
+                    userDetails.classList.add(
+                        "create-ticket-user-result-details"
+                    );
+
+                    userDetails.textContent =
+                        `${user.employee_number} · ${user.email}`;
+
+                    userButton.appendChild(userName);
+                    userButton.appendChild(userDetails);
+
+                    userButton.addEventListener("click", function() {
+
+                        selectedUserId = user.user_id;
+
+                        userInput.value = user.full_name;
+
+                        employeeNumberInput.value =
+                            user.employee_number;
+
+                        employeeEmailInput.value =
+                            user.email;
+
+                        employeeJobTitleInput.value =
+                            user.job_title || "";
+
+                        userResults.innerHTML = "";
+                        userResults.style.display = "none";
+
+                    });
+
+                    userResults.appendChild(userButton);
+
+                });
+
+                userResults.style.display = "block";
+
+            } catch (error) {
+
+                console.error("User search failed:", error);
+
+            }
+
+        }, 250);
 
     }
 
-    // Create Ticket Function
+    // Create Ticket
 
-    function createTicket() {
+    async function createTicket() {
 
-        // Get Input Values
-
-        const user = userInput.value.trim();
-        const employeeNumber = employeeNumberInput.value.trim();
-        const employeeEmail = employeeEmailInput.value.trim();
-        const employeeJobTitle = employeeJobTitleInput.value.trim();
         const category = categoryInput.value;
         const priority = priorityInput.value;
         const subject = subjectInput.value.trim();
         const description = descriptionInput.value.trim();
 
-        // Validate Required Fields
+        if (selectedUserId === null) {
 
-        if (user === "") {
-
-            alert("Please select a user.")
+            alert("Please select a user from the search results.");
             userInput.focus();
             return;
 
@@ -661,84 +817,107 @@ if (createTicketPage) {
 
         if (category === "") {
 
-            alert("Please select a category.")
+            alert("Please select a category.");
             categoryInput.focus();
             return;
+
         }
 
         if (priority === "") {
 
-            alert("Please select a priority level.")
+            alert("Please select a priority level.");
             priorityInput.focus();
             return;
+
         }
 
         if (subject === "") {
 
-            alert("Enter ticket subject before creating ticket.")
+            alert("Enter ticket subject before creating ticket.");
             subjectInput.focus();
             return;
+
         }
 
         if (description === "") {
 
-            alert("Enter ticket description before creating ticket.")
+            alert("Enter ticket description before creating ticket.");
             descriptionInput.focus();
             return;
+
         }
 
-        // Generate Ticket Number
+        createButton.disabled = true;
+        createButton.textContent = "Creating...";
 
-        const ticketNumber = generateTicketNumber();
+        try {
 
-        // Create Ticket Object
+            const response = await fetch("/api/tickets", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
 
-        const ticket = {
-            ticketNumber: ticketNumber,
-            user: user,
-            employeeNumber: employeeNumber,
-            employeeEmail: employeeEmail,
-            employeeJobTitle: employeeJobTitle,
-            category: category,
-            priority: priority,
-            subject: subject,
-            description: description,
-            status: "in-progress",
-            assignedTo: "",
-            assignedDepartment: "",
-            worknotes: "",
-            createdDate: new Date().toLocaleDateString(),
-            resolvedDate: null
-        };
+                body: JSON.stringify({
+                    requesterId: selectedUserId,
+                    category: category,
+                    priority: priority,
+                    subject: subject,
+                    description: description,
+                    status: "in-progress"
+                })
+            });
 
-        // Save Temporary
+            const data = await response.json();
 
-        console.log("Ticket Created:", ticket);
+            if (!response.ok) {
 
-        localStorage.setItem(
-            ticketNumber,
-            JSON.stringify(ticket)
-        );
+                alert(
+                    data.error ||
+                    "Failed to create ticket."
+                );
 
-        localStorage.setItem(
-            "currentTicket",
-            ticketNumber
-        );
+                return;
+            }
 
-        // Success Message
+            localStorage.setItem(
+                "currentTicket",
+                data.ticketId
+            );
 
-        alert("Ticket created successfully!\n\n Ticket Number: " + ticketNumber);
+            alert(
+                "Ticket created successfully!\n\nTicket Number: " +
+                data.ticketNumber
+            );
 
-        // Redirect to Ticket Information Page
+            window.location.href = "ticket-main-page.html";
 
-        window.location.href = "ticket-main-page.html";
+        } catch (error) {
 
+            console.error("Create ticket failed:", error);
+
+            alert("Unable to connect to the server.");
+
+        } finally {
+
+            createButton.disabled = false;
+            createButton.innerHTML =
+                '<i data-lucide="circle-plus"></i>Create Ticket';
+
+            lucide.createIcons();
+
+        }
 
     }
 
+    // Cancel Ticket
+
     function cancelTicket() {
 
-        const confirmCancel = confirm("Are you sure you want to cancel ticket creation?");
+        const confirmCancel = confirm(
+            "Are you sure you want to cancel ticket creation?"
+        );
 
         if (confirmCancel) {
 
@@ -751,8 +930,16 @@ if (createTicketPage) {
     // Event Listeners
 
     userInput.addEventListener("input", searchUser);
-    createButton.addEventListener("click", createTicket);
-    cancelButton.addEventListener("click", cancelTicket);
+
+    createButton.addEventListener(
+        "click",
+        createTicket
+    );
+
+    cancelButton.addEventListener(
+        "click",
+        cancelTicket
+    );
 
 }
 
@@ -778,99 +965,195 @@ if (mainTicketInformationPage) {
     const ticketSubject = document.getElementById("subject");
     const ticketDescription = document.getElementById("description");
     const ticketWorknotes = document.getElementById("worknotes");
-
     const ticketCancelButton = document.getElementById("main-ticket-information-buttons-cancel");
     const ticketSaveChangesButton = document.getElementById("main-ticket-information-buttons-save-changes");
     const ticketResolveButton = document.getElementById("main-ticket-information-buttons-resolve");
     const ticketReopenButton = document.getElementById("main-ticket-information-buttons-reopen");
+    const publishWorknoteButton = document.getElementById("main-ticket-information-worknotes-buttons-publish");
 
-    // Current ticket setup
+    // Current Ticket
 
-    let currentTicket;
-    let ticket;
+    const urlParameters = new URLSearchParams(window.location.search);
+    const ticketId = urlParameters.get("id");
+    let ticket = null;
 
-    // Ticket Functions
+    // IDs used by the database
 
-    function loadCurrentTicket() {
+    let assignedDepartmentId = null;
+    let assignedTechnicianId = null;
 
-        // Get saved ticket from localStorage
+    const ticketAssignedDepartmentResults = document.getElementById("ticket-assigned-department-results");
+    const ticketAssignedTechnicianResults = document.getElementById("ticket-assigned-technician-results");
 
-        currentTicket = localStorage.getItem("currentTicket");
+    // Getting and displaying worknotes
 
-        // Check if ticket exists
+    async function loadWorknoteHistory() {
 
-        if (!currentTicket) {
+        ticketWorknotesHistory.innerHTML = "";
 
-            alert("No ticket found. Redirecting to Ticket List.");
+        try {
+
+            const response = await fetch(
+                `/api/tickets/${encodeURIComponent(ticketId)}/worknotes`, {
+                    credentials: "include"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to retrieve worknotes.");
+            }
+
+            const worknotes = await response.json();
+
+            if (worknotes.length === 0) {
+
+                const emptyMessage = document.createElement("p");
+                emptyMessage.classList.add("main-ticket-information-worknotes-empty");
+                emptyMessage.textContent = "No worknotes yet.";
+                ticketWorknotesHistory.appendChild(emptyMessage);
+                return;
+
+            }
+
+            worknotes.forEach(function(worknote) {
+
+                const worknoteElement = document.createElement("div");
+                worknoteElement.classList.add("main-ticket-information-worknote");
+                const header = document.createElement("div");
+                header.classList.add("main-ticket-information-worknote-header");
+                const username = document.createElement("span");
+                username.classList.add("main-ticket-information-worknote-user");
+                username.textContent = worknote.username;
+                const date = document.createElement("span");
+                date.classList.add("main-ticket-information-worknote-date");
+                date.textContent = new Date(worknote.created_at).toLocaleString();
+                const note = document.createElement("p");
+                note.classList.add("main-ticket-information-worknote-text");
+                note.textContent = worknote.note;
+                header.appendChild(username);
+                header.appendChild(date);
+                worknoteElement.appendChild(header);
+                worknoteElement.appendChild(note);
+                ticketWorknotesHistory.appendChild(worknoteElement);
+
+            });
+
+        } catch (error) {
+
+            console.error("Failed to load worknotes:", error);
+            const errorMessage = createElement("p");
+            errorMessage = document.classList.add("main-ticket-information-worknotes-empty");
+            errorMessage.textContent = "Unable to load worknotes.";
+            ticketWorknotesHistory.appendChild(errorMessage);
+
+        }
+        
+    }
+
+    // Load Ticket
+
+    async function loadCurrentTicket() {
+
+        if (!ticketId) {
+
+            alert("No ticket selected. Redirecting to Ticket List.");
             window.location.href = "ticket-list.html";
             return;
 
         }
 
-        // Get saved ticket data
+        try {
 
-        const ticketData = localStorage.getItem(currentTicket);
+            const response = await fetch(
+                `/api/tickets/${encodeURIComponent(ticketId)}`,
+                {
+                    credentials: "include"
+                }
+            );
 
-        if (!ticketData) {
+            if (!response.ok) {
 
-            alert("Ticket data not found. Redirecting to Ticket List.");
+                if (response.status === 404) {
+                    alert(
+                        "Ticket not found. Redirecting to Ticket List."
+                    );
+                } else {
+                    alert(
+                        "Failed to load ticket. Redirecting to Ticket List."
+                    );
+                }
+
+                window.location.href = "ticket-list.html";
+                return;
+            }
+
+            ticket = await response.json();
+
+            // Database IDs
+
+            assignedDepartmentId = ticket.assigned_department_id || null;
+            assignedTechnicianId = ticket.assigned_to_user_id || null;
+
+            // Load Ticket Values
+
+            ticketNumber.value = ticket.ticket_number;
+            ticketUser.value = ticket.requester;
+            ticketEmployeeNumber.value = ticket.employee_number;
+            ticketEmployeeEmail.value = ticket.email;
+            ticketEmployeeJobTitle.value = ticket.job_title || "";
+            ticketCategory.value = ticket.category || "";
+            ticketPriority.value = ticket.priority || "";
+            ticketStatus.value = ticket.status;
+            ticketCreatedDate.value = new Date(ticket.created_at).toLocaleDateString();
+            ticketAssignedDepartment.value = ticket.assigned_department || "";
+            ticketAssignedTechnician.value = ticket.assigned_to || "";
+            ticketSubject.value = ticket.subject || "";
+            ticketDescription.value = ticket.description || "";
+            ticketWorknotes.value = "";
+
+            // Show all worknotes
+
+            await loadWorknoteHistory();
+
+            // Resolved Ticket
+
+            if (ticket.status === "resolved") {
+                lockTicket();
+            } else {
+                unlockTicket();
+            }
+
+        } catch (error) {
+
+            console.error("Failed to load ticket:", error);
+
+            alert(
+                "Unable to connect to the server. Redirecting to Ticket List."
+            );
+
             window.location.href = "ticket-list.html";
-            return;
-
-        }
-
-        // Convert JSON to object
-
-        ticket = JSON.parse(ticketData);
-
-        // Load ticket values
-
-        ticketNumber.value = ticket.ticketNumber;
-        ticketUser.value = ticket.user;
-        ticketEmployeeNumber.value = ticket.employeeNumber;
-        ticketEmployeeEmail.value = ticket.employeeEmail;
-        ticketEmployeeJobTitle.value = ticket.employeeJobTitle;
-        ticketCategory.value = ticket.category;
-        ticketPriority.value = ticket.priority;
-        ticketStatus.value = ticket.status;
-        ticketCreatedDate.value = ticket.createdDate;
-        ticketAssignedDepartment.value = ticket.assignedDepartment;
-        ticketAssignedTechnician.value = ticket.assignedTo;
-        ticketSubject.value = ticket.subject;
-        ticketDescription.value = ticket.description;
-        ticketWorknotes.value = ticket.worknotes;
-
-        // Check ticket status
-
-        if (ticket.status === "resolved") {
-
-            lockTicket();
-
         }
 
     }
 
-    function lockTicket() {
+    // Lock Ticket
 
-        // Hide normal buttons
+    function lockTicket() {
 
         ticketCancelButton.style.display = "none";
         ticketSaveChangesButton.style.display = "none";
         ticketResolveButton.style.display = "none";
         ticketReopenButton.style.display = "flex";
 
-        // Lock Fields
-
         ticketStatus.disabled = true;
         ticketCategory.disabled = true;
         ticketPriority.disabled = true;
         ticketAssignedDepartment.disabled = true;
         ticketAssignedTechnician.disabled = true;
+
         ticketSubject.readOnly = true;
         ticketDescription.readOnly = true;
         ticketWorknotes.readOnly = true;
-
-        // Adding gray styling to locked fields
 
         ticketStatus.classList.add("ticket-resolved");
         ticketCategory.classList.add("ticket-resolved");
@@ -880,23 +1163,21 @@ if (mainTicketInformationPage) {
         ticketSubject.classList.add("ticket-resolved");
         ticketDescription.classList.add("ticket-resolved");
         ticketWorknotes.classList.add("ticket-resolved");
-
     }
 
-    function unlockTicket() {
+    // Unlock Ticket
 
-        // Unlock fields
+    function unlockTicket() {
 
         ticketStatus.disabled = false;
         ticketCategory.disabled = false;
         ticketPriority.disabled = false;
         ticketAssignedDepartment.disabled = false;
         ticketAssignedTechnician.disabled = false;
+
         ticketSubject.readOnly = false;
         ticketDescription.readOnly = false;
         ticketWorknotes.readOnly = false;
-
-        // Removing gray styling
 
         ticketStatus.classList.remove("ticket-resolved");
         ticketCategory.classList.remove("ticket-resolved");
@@ -907,99 +1188,419 @@ if (mainTicketInformationPage) {
         ticketDescription.classList.remove("ticket-resolved");
         ticketWorknotes.classList.remove("ticket-resolved");
 
-        // Showing normal buttons back
-
         ticketCancelButton.style.display = "flex";
         ticketSaveChangesButton.style.display = "flex";
         ticketResolveButton.style.display = "flex";
 
         ticketReopenButton.style.display = "none";
+    }
+
+    // Hide technician and department search results
+
+    function hideAssignedResults() {
+
+        ticketAssignedDepartmentResults.style.display = "none";
+        ticketAssignedTechnicianResults.style.display = "none";
 
     }
 
-    function saveChanges(showAlert = true) {
+    // Department search
 
-        // Get changed values
+    async function searchAssignedDepartment () {
 
-        ticket.status = ticketStatus.value;
-        ticket.priority = ticketPriority.value;
-        ticket.assignedDepartment = ticketAssignedDepartment.value;
-        ticket.assignedTo = ticketAssignedTechnician.value;
-        ticket.subject = ticketSubject.value;
-        ticket.description = ticketDescription.value;
-        ticket.worknotes = ticketWorknotes.value;
+        const searchValue = ticketAssignedDepartment.value.trim().toLowerCase();
 
-        // Save ticket
+        assignedDepartmentId = null;
+        assignedTechnicianId = null;
+        ticketAssignedTechnician.value = "";
+        ticketAssignedDepartmentResults.innerHTML = "";
+        ticketAssignedTechnicianResults.innerHTML = "";
+        ticketAssignedDepartmentResults.style.display = "none";
+        ticketAssignedTechnicianResults.style.display = "none";
 
-        localStorage.setItem(
-            currentTicket,
-            JSON.stringify(ticket)
+        if (searchValue === "") {
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                "/api/departments",
+                {
+                    credentials: "include"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to retrieve departments.");
+            }
+
+            const departments = await response.json();
+            const matchingDepartments = departments.filter(
+
+                function(department) {
+                    return department.department_name.toLowerCase().includes(searchValue);
+                }
+
+            );
+
+            if (matchingDepartments.length === 0) {
+
+                const noResults = document.createElement("div");
+                noResults.classList.add("ticket-assigned-search-no-results");
+                noResults.textContent = "No departments found.";
+                ticketAssignedDepartmentResults.appendChild(noResults);
+                ticketAssignedDepartmentResults.style.display = "block";
+                
+                return;
+
+            }
+
+            matchingDepartments.forEach(function(department) {
+
+                const button = document.createElement("button");
+                button.type = "button";
+                button.classList.add("ticket-assigned-search-result");
+                const name = document.createElement("span");
+                name.classList.add("ticket-assigned-search-result-name");
+                name.textContent = department.department_name;
+                button.appendChild(name);
+                button.addEventListener("click", function() {
+
+                    assignedDepartmentId = department.department_id;
+                    assignedTechnicianId = null;
+                    ticketAssignedDepartment.value = department.department_name;
+                    ticketAssignedTechnician.value = "";
+                    ticketAssignedDepartmentResults.innerHTML = "";
+                    ticketAssignedDepartmentResults.style.display = "none";
+
+                });
+
+                ticketAssignedDepartmentResults.appendChild(button);
+
+            });
+
+            ticketAssignedDepartmentResults.style.display = "block";
+
+        } catch (error) {
+
+            console.error("Department search failed:", error);
+        }
+
+    }
+
+    // Technician Search
+
+    async function searchAssignedTechician() {
+        
+        const searchValue = ticketAssignedTechnician.value.trim().toLowerCase();
+        assignedTechnicianId = null;
+
+        ticketAssignedTechnicianResults.innerHTML = "";
+        ticketAssignedTechnicianResults.style.display = "none";
+
+        if (searchValue === "") {
+            return;
+        }
+
+        if (assignedDepartmentId === null) {
+            return;
+        }
+
+        try {
+
+            const url = `/api/technicians?departmentId=${assignedDepartmentId}`;
+
+            const response = await fetch(
+
+                url, {
+                    credentials: "include"
+                }
+
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to retrieve technicians.");
+            }
+
+            const technicians = await response.json();
+            const matchingTechnicians = technicians.filter(function(technician) {
+
+                return (
+                    technician.full_name.toLowerCase().includes(searchValue)
+                );
+
+            });
+
+            if (matchingTechnicians.length === 0) {
+
+                const noResults = document.createElement("div");
+                noResults.classList.add("ticket-assigned-search-no-results");
+                noResults.textContent = "No technicians found.";
+                ticketAssignedTechnicianResults.appendChild(noResults);
+                ticketAssignedTechnicianResults.style.display = "block";
+
+                return;
+
+            }
+
+            matchingTechnicians.forEach(function(technician) {
+
+                const button = document.createElement("button");
+                button.type = "button";
+                button.classList.add("ticket-assigned-search-result");
+
+
+                const name = document.createElement("span");
+                name.classList.add("ticket-assigned-search-result-name");
+                name.textContent = technician.full_name;
+                button.appendChild(name);
+                button.addEventListener("click", function() {
+
+                    assignedTechnicianId = technician.user_id;
+                    ticketAssignedTechnician.value = technician.full_name;
+                    ticketAssignedTechnicianResults.innerHTML = "";
+                    ticketAssignedTechnicianResults.style.display = "none";
+
+                });
+
+                ticketAssignedTechnicianResults.appendChild(button);
+
+            });
+
+            ticketAssignedTechnicianResults.style.display = "block";
+
+        } catch (error) {
+
+            console.error("Techinician search failed:", error);
+
+        }
+
+    }
+
+    // Save Changes
+
+    async function saveChanges(showAlert = true) {
+
+    if (
+        ticketAssignedDepartment.value.trim() !== "" &&
+        assignedDepartmentId === null
+    ) {
+
+        alert("Please select a valid assigned department.");
+        ticketAssignedDepartment.focus();
+        return false;
+
+    }
+
+    if (
+        ticketAssignedTechnician.value.trim() !== "" &&
+        assignedTechnicianId === null
+    ) {
+
+        alert("Please select a valid assigned technician.");
+        ticketAssignedTechnician.focus();
+        return false;
+
+    }
+
+    const updatedTicket = {
+
+        assignedToUserId: assignedTechnicianId,
+        assignedDepartmentId: assignedDepartmentId,
+
+        category: ticketCategory.value,
+        priority: ticketPriority.value,
+        subject: ticketSubject.value,
+        description: ticketDescription.value,
+        status: ticketStatus.value
+
+    };
+
+    try {
+
+        const response = await fetch(
+            `/api/tickets/${encodeURIComponent(ticketId)}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify(updatedTicket)
+            }
         );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            alert(
+                data.error ||
+                "Failed to save ticket changes."
+            );
+
+            return false;
+        }
+
+        // Publish current worknote, if there is one
+
+        const worknoteSaved =
+            await publishWorknote(false);
+
+        if (!worknoteSaved) {
+
+            alert(
+                "Ticket changes were saved, but the worknote could not be published."
+            );
+
+            await loadCurrentTicket();
+
+            return false;
+        }
 
         if (showAlert) {
             alert("Ticket changes saved.");
         }
 
+        await loadCurrentTicket();
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Failed to save ticket:",
+            error
+        );
+
+        alert("Unable to connect to the server.");
+
+        return false;
     }
+}
 
-    function cancelChanges() {
+    // Cancel Changes
 
-        const confirmCancel = confirm("Do you want to remove all changes?")
+    async function cancelChanges() {
+
+        const confirmCancel =
+            confirm("Do you want to remove all changes?");
 
         if (confirmCancel) {
-
-            loadCurrentTicket();
-
+            await loadCurrentTicket();
         }
 
     }
 
-    function resolveTicket() {
+    // Resolve Ticket
 
-        // Change status
+    async function resolveTicket() {
 
-        ticket.status = "resolved";
-        ticket.resolvedDate = new Date().toLocaleDateString();
         ticketStatus.value = "resolved";
 
-        // Lock and save ticket
+        const saved =
+            await saveChanges(false);
 
-        saveChanges(false);
-        lockTicket();
-
-    }
-
-    function reopenTicket() {
-
-        // Change status
-
-        ticket.status = "in-progress"
-        ticket.resolvedDate = null;
-        ticketStatus.value = "in-progress"
-
-        // Save ticket
-
-        localStorage.setItem(
-            currentTicket,
-            JSON.stringify(ticket)
-        );
-
-        // Unlock ticket
-
-        unlockTicket();
+        if (saved) {
+            lockTicket();
+        }
 
     }
 
-    // Load current ticket
+    // Re-open Ticket
+
+    async function reopenTicket() {
+
+        ticketStatus.value = "in-progress";
+
+        const saved =
+            await saveChanges(false);
+
+        if (saved) {
+            unlockTicket();
+        }
+
+    }
+
+    // Publish Worknote
+
+    async function publishWorknote(showAlert = true) {
+
+        const note = ticketWorknotes.value.trim();
+
+        // Nothing to publish
+        if (note === "") {
+            return true;
+        }
+
+        try {
+
+            const response = await fetch(
+                `/api/tickets/${encodeURIComponent(ticketId)}/worknotes`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        note: note
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+
+                if (showAlert) {
+                    alert(
+                        data.error ||
+                        "Failed to publish worknote."
+                    );
+                }
+
+                return false;
+            }
+
+            ticketWorknotes.value = "";
+
+            if (showAlert) {
+                await loadWorknoteHistory();
+                alert("Worknote published.");
+            }
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                "Failed to publish worknote:",
+                error
+            );
+
+            if (showAlert) {
+                alert("Unable to connect to the server.");
+            }
+
+            return false;
+        }
+    }
+
+    // Load Ticket
 
     loadCurrentTicket();
 
-    // Event listeners
+    // Event Listeners
 
-    ticketSaveChangesButton.addEventListener("click", saveChanges);
-    ticketCancelButton.addEventListener("click", cancelChanges);
-    ticketResolveButton.addEventListener("click", resolveTicket);
-    ticketReopenButton.addEventListener("click", reopenTicket);
+    ticketSaveChangesButton.addEventListener("click",function() {saveChanges(true);});
+    ticketCancelButton.addEventListener("click",cancelChanges);
+    ticketResolveButton.addEventListener("click",resolveTicket);
+    ticketReopenButton.addEventListener("click",reopenTicket);
+    publishWorknoteButton.addEventListener("click",publishWorknote);
+    ticketAssignedDepartment.addEventListener("input", searchAssignedDepartment);
+    ticketAssignedTechnician.addEventListener("input", searchAssignedTechician);
 
 }
 
@@ -1042,6 +1643,54 @@ if (ticketListPage) {
     const ticketList = document.querySelector(".main-ticket-list-main-list");
     const ticketListCount = document.getElementById("main-ticket-list-count");
 
+    // Getting tickets from API
+
+    async function getTicketsFromAPI() {
+
+        try {
+
+            const response = await fetch("api/tickets", {
+                credentials: "include"
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to retrieve tickets.");
+            }
+
+            const tickets = await response.json();
+
+            return tickets.map(function (ticket) {
+
+                return {
+
+                    ticketId: ticket.ticket_id,
+                    ticketNumber: ticket.ticket_number,
+                    user: ticket.requester,
+                    employeeNumber: ticket.employee_number,
+                    employeeEmail: ticket.email,
+                    employeeJobTitle: ticket.job_title,
+                    category: ticket.category,
+                    priority: ticket.priority,
+                    subject: ticket.subject,
+                    description: ticket.description,
+                    status: ticket.status,
+                    assignedTo: ticket.assigned_to || "",
+                    assignedDepartment: ticket.assigned_department || "",
+                    worknotes: "",
+                    createdDate: new Date(ticket.created_at).toLocaleDateString(),
+                    resolvedDate: ticket.resolved_at
+
+                };
+
+            });
+
+        } catch (error) {
+            console.error("Failed to load tickets:", error);
+            return [];
+        }
+
+    }
+
     // Loading ticket data and showing ticket count
 
     function loadTicketList(ticketData) {
@@ -1069,16 +1718,7 @@ if (ticketListPage) {
 
             const ticketNumber = document.createElement("a");
             ticketNumber.textContent = ticket.ticketNumber;
-            ticketNumber.href = "ticket-main-page.html";
-
-            ticketNumber.addEventListener("click", function() {
-
-                localStorage.setItem(
-                    "currentTicket",
-                    ticket.ticketNumber
-                );
-
-            });
+            ticketNumber.href = `ticket-main-page.html?id=${ticket.ticketId}`;
 
             const user = document.createElement("span");
             user.textContent = ticket.user;
@@ -1118,9 +1758,9 @@ if (ticketListPage) {
 
     // Apply Filter Function for the Apply Filter Button
 
-    function applyFilters() {
+    async function applyFilters() {
 
-        const tickets = getTickets();
+        const tickets = await getTicketsFromAPI();
 
         console.log(tickets);
 
@@ -1158,7 +1798,7 @@ if (ticketListPage) {
 
     // Clear Filter Function for the clear filter button
 
-    function clearFilters() {
+    async function clearFilters() {
 
         ticketNumberFilter.value = "";
         userFilter.value = "";
@@ -1169,7 +1809,7 @@ if (ticketListPage) {
         dateFilter.value = "";
         categoryFilter.value = "";
 
-        loadTicketList(getTickets());
+        loadTicketList(await getTicketsFromAPI());
 
     }
 
@@ -1480,6 +2120,10 @@ if (knowledgeBaseArticlePage) {
 
 }
 
+// ============================
+//    User Help Page Scripts
+// ============================
+
 if (userHelpPage) {
 
     // HTML Elements
@@ -1488,91 +2132,197 @@ if (userHelpPage) {
     const helpEmail = document.getElementById("help-email");
     const helpSubject = document.getElementById("help-subject");
     const helpDescription = document.getElementById("help-description");
-
     const helpCancelButton = document.querySelector(".user-main-ask-help-cancel-button");
     const helpSubmitButton = document.querySelector(".user-main-ask-help-submit-button");
-
     const helpRequestForm = document.querySelector(".user-main-ask-for-help-user-information");
     const helpSuccessMessage = document.querySelector(".user-main-ask-for-help-success");
     const helpCreateAnotherButton = document.querySelector(".user-main-ask-for-help-create-another-button");
 
-    // Create ticket with the provided information
 
-    function submitHelpRequest() {
+    // Load Logged-in User
 
-        // Get values
+    async function loadHelpUser() {
 
-        const helpTicketUsername = helpUsername.value.trim();
-        const helpTicketEmail = helpEmail.value.trim();
-        const helpTicketSubject = helpSubject.value.trim();
-        const helpTicketDescription = helpDescription.value.trim();
+        try {
 
-        // Validate subject and description fields
+            const response = await fetch(
+                "/api/me",
+                {
+                    credentials: "include"
+                }
+            );
 
-        if (helpTicketSubject === "") {
+            if (!response.ok) {
 
-            alert("Enter summary of your issue before submitting.")
-            helpSubject.focus();
-            return;
+                window.location.href =
+                    "index.html";
+
+                return;
+            }
+
+            const user =
+                await response.json();
+
+            helpUsername.value =
+                user.username;
+
+            helpEmail.value =
+                user.email;
+
+        } catch (error) {
+
+            console.error(
+                "Failed to load user information:",
+                error
+            );
+
+            alert(
+                "Unable to load your account information."
+            );
 
         }
-
-        if (helpTicketDescription === "") {
-
-            alert("Describe your issue before submitting.")
-            helpDescription.focus();
-            return;
-
-        }
-
-        // Generate ticket number
-
-        const helpTicketNumber = generateTicketNumber();
-
-        // Create ticket object
-
-        const ticket = {
-            ticketNumber: helpTicketNumber,
-            user: helpTicketUsername,
-            employeeNumber: "",
-            employeeEmail: helpTicketEmail,
-            employeeJobTitle: "",
-            category: "",
-            priority: "low",
-            subject: helpTicketSubject,
-            description: helpTicketDescription,
-            status: "open",
-            assignedTo: "",
-            assignedDepartment: "",
-            worknotes: "",
-            createdDate: new Date().toLocaleDateString(),
-            resolvedDate: null
-        };
-
-        // Save temporary
-
-        console.log("Ticket Created:", ticket);
-
-        localStorage.setItem(
-            helpTicketNumber,
-            JSON.stringify(ticket)
-        );
-
-        localStorage.setItem(
-            "currentTicket",
-            helpTicketNumber
-        );
-
-        // Display success message
-
-        helpRequestForm.style.display = "none";
-        helpSuccessMessage.style.display = "flex";
 
     }
 
+
+    // Submit Help Request
+
+    async function submitHelpRequest() {
+
+        const helpTicketSubject =
+            helpSubject.value.trim();
+
+        const helpTicketDescription =
+            helpDescription.value.trim();
+
+
+        // Validate Subject
+
+        if (helpTicketSubject === "") {
+
+            alert(
+                "Enter summary of your issue before submitting."
+            );
+
+            helpSubject.focus();
+
+            return;
+        }
+
+
+        // Validate Description
+
+        if (helpTicketDescription === "") {
+
+            alert(
+                "Describe your issue before submitting."
+            );
+
+            helpDescription.focus();
+
+            return;
+        }
+
+
+        helpSubmitButton.disabled = true;
+
+        helpSubmitButton.innerHTML =
+            '<i data-lucide="loader-circle"></i>Submitting...';
+
+        lucide.createIcons();
+
+
+        try {
+
+            const response = await fetch(
+                "/api/tickets",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    credentials: "include",
+
+                    body: JSON.stringify({
+
+                        category: null,
+                        priority: "low",
+                        subject: helpTicketSubject,
+                        description:
+                            helpTicketDescription,
+
+                        status: "open"
+
+                    })
+                }
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                alert(
+                    data.error ||
+                    "Failed to submit help request."
+                );
+
+                return;
+            }
+
+
+            console.log(
+                "Help request created:",
+                data
+            );
+
+
+            // Display Success Message
+
+            helpRequestForm.style.display =
+                "none";
+
+            helpSuccessMessage.style.display =
+                "flex";
+
+
+        } catch (error) {
+
+            console.error(
+                "Help request failed:",
+                error
+            );
+
+            alert(
+                "Unable to connect to the server."
+            );
+
+        } finally {
+
+            helpSubmitButton.disabled = false;
+
+            helpSubmitButton.innerHTML =
+                '<i data-lucide="circle-plus"></i>Submit';
+
+            lucide.createIcons();
+
+        }
+
+    }
+
+
+    // Cancel
+
     function helpCancelTicket() {
 
-        const confirmCancel = confirm("Are you sure you want to cancel ticket creation?");
+        const confirmCancel =
+            confirm(
+                "Are you sure you want to cancel ticket creation?"
+            );
 
         if (confirmCancel) {
 
@@ -1583,22 +2333,45 @@ if (userHelpPage) {
 
     }
 
+
+    // Submit Another
+
     function helpCreateAnotherTicket() {
 
         helpSubject.value = "";
         helpDescription.value = "";
 
-        helpSuccessMessage.style.display = "none";
-        helpRequestForm.style.display = "flex";
+        helpSuccessMessage.style.display =
+            "none";
+
+        helpRequestForm.style.display =
+            "flex";
 
         helpSubject.focus();
 
     }
 
-    // Event listeners
 
-    helpSubmitButton.addEventListener("click", submitHelpRequest);
-    helpCancelButton.addEventListener("click", helpCancelTicket);
-    helpCreateAnotherButton.addEventListener("click", helpCreateAnotherTicket);
+    // Event Listeners
+
+    helpSubmitButton.addEventListener(
+        "click",
+        submitHelpRequest
+    );
+
+    helpCancelButton.addEventListener(
+        "click",
+        helpCancelTicket
+    );
+
+    helpCreateAnotherButton.addEventListener(
+        "click",
+        helpCreateAnotherTicket
+    );
+
+
+    // Load User
+
+    loadHelpUser();
 
 }

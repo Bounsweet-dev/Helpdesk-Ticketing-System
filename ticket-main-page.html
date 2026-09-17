@@ -183,18 +183,38 @@
                         </select>
 
                         <label for="assigned-department">Assigned Department</label>
-                        <input
-                            type="text"
-                            id="assigned-department"
-                            name="assigned-department"
-                        >
+                        <div class="main-ticket-information-assigned-search">
+
+                            <input
+                                type="text"
+                                id="assigned-department"
+                                name="assigned-department"
+                                autocomplete="off"
+                            >
+
+                            <div
+                                id="ticket-assigned-department-results"
+                                class="ticket-assigned-search-results"
+                            ></div>
+
+                        </div>
 
                         <label for="assigned-technician">Assigned To</label>
-                        <input
-                            type="text"
-                            id="assigned-technician"
-                            name="assigned-technician"
-                        >
+                        <div class="main-ticket-information-assigned-search">
+
+                            <input
+                                type="text"
+                                id="assigned-technician"
+                                name="assigned-technician"
+                                autocomplete="off"
+                            >
+
+                            <div
+                                id="ticket-assigned-technician-results"
+                                class="ticket-assigned-search-results"
+                            ></div>
+
+                        </div>
 
                     </div>
 
@@ -218,8 +238,9 @@
                     </div>
 
                     <div class="main-ticket-information-worknotes">
-                        
+
                         <label for="worknotes">Worknotes</label>
+
                         <textarea
                             id="worknotes"
                             name="worknotes"
@@ -228,10 +249,21 @@
 
                         <div class="main-ticket-information-worknotes-buttons-publish">
 
-                            <button type="button" id="main-ticket-information-worknotes-buttons-publish">
-                                <i data-lucide="pencil"></i>Publish Worknote</button>
+                            <button
+                                type="button"
+                                id="main-ticket-information-worknotes-buttons-publish"
+                            >
+                                <i data-lucide="pencil"></i>
+                                Publish Worknote
+                            </button>
 
-                        </div> 
+                        </div>
+
+                        <div
+                            id="main-ticket-information-worknotes-history"
+                            class="main-ticket-information-worknotes-history"
+                        ></div>
+
                     </div>
 
                     <div class="main-ticket-information-buttons">
