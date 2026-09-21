@@ -16,213 +16,168 @@ const knowledgeBasePage = document.querySelector(".main-knowledge-base");
 const knowledgeBaseArticlePage = document.querySelector(".main-knowledge-base-article-page");
 const userHelpPage = document.querySelector(".user-main-ask-for-help-user-information");
 const ticketWorknotesHistory = document.getElementById("main-ticket-information-worknotes-history");
+const knowledgeBaseCreateArticlePage = document.querySelector(".main-knowledge-base-create-article");
+const aboutPage = document.querySelector(".main-about-page") !== null;
+const forgotPassword = document.querySelector(".forgot-password-page");
 
-// =========================================
-//    Temporary User Data (To Be Removed)
-// =========================================
+// =============================
+//    Side Bar Footer Scripts
+// =============================
 
-const users = [
-    {
-        name: "John Doe",
-        employeeNumber: "EMP001",
-        email: "jodoe@nexusdesk.com",
-        jobTitle: "L1 IT Helpdesk"
-    },
-    {
-        name: "Jane Smith",
-        employeeNumber: "EMP002",
-        email: "jasmith@nexusdesk.com",
-        jobTitle: "L2 IT Helpdesk"
-    },
-    {
-        name: "Mark Wilson",
-        employeeNumber: "EMP003",
-        email: "mawillson@nexusdesk.com",
-        jobTitle: "Cybersecurity Analyst I"
-    },
-    {
-        name: "Margarette Barrel",
-        employeeNumber: "EMP004",
-        email: "mabarrel@nexusdesk.com",
-        jobTitle: "Network Engineer I"
-    },
-    {
-        name: "Kevin Baller",
-        employeeNumber: "EMP005",
-        email: "keballer@nexusdesk.com",
-        jobTitle: "IT Manager"
+function initializeSidebarAccount() {
+
+    const accountName =
+        document.getElementById("sidebar-account-name");
+
+    const accountEmail =
+        document.getElementById("sidebar-account-email");
+
+    const accountMenuButton =
+        document.getElementById("sidebar-account-menu-button");
+
+    const accountMenu =
+        document.getElementById("sidebar-account-menu");
+
+    const logoutButton =
+        document.getElementById("sidebar-logout-button");
+
+    // Stop if this page does not have the account section
+
+    if (
+        !accountName ||
+        !accountEmail ||
+        !accountMenuButton ||
+        !accountMenu ||
+        !logoutButton
+    ) {
+        return;
     }
-];
 
 
-// ==============================
-//    Temporary Recent Tickets
-// ==============================
+    // Load current user
 
-const tickets = [
-    {
-        number: 1000,
-        subject: "Computer Won't Start",
-        priority: "High",
-        state: "Open"
-    },
-    {
-        number: 1001,
-        subject: "Cannot Connect to Wi-Fi",
-        priority: "Medium",
-        state: "Pending"
-    },
-    {
-        number: 1002,
-        subject: "Printer is not Printing",
-        priority: "Medium",
-        state: "Open"
-    },
-    {
-        number: 1003,
-        subject: "Password Reset",
-        priority: "Low",
-        state: "Pending"
-    }
-];
-
-// ===========================
-//    Temporary KB Articles
-// ===========================
-
-    const knowledgeBaseArticles = [
-
-        {
-            id: 1,
-            title: "How to Reset a User Password",
-            category: "Account",
-            description: "Steps for resetting a user's password when they have forgotten their credentials.",
-            updatedDate: "Sep 8, 2026",
-            readTime: "5 min read",
-            content: {
-                problem: "The user has forgotten their password and is unable to access their account.",
-
-                causes: [
-                    "The user forgot their password.",
-                    "The password has expired.",
-                    "The account is locked."
-                ],
-
-                steps: [
-                    "Verify the user's identity.",
-                    "Open the user's account in Active Directory.",
-                    "Select the option to reset the password.",
-                    "Set a temporary password.",
-                    "Provide the temporary password to the user securely."
-                ],
-
-                resolution: "The user should now be able to sign in using the temporary password and create a new password when prompted."
-            }
-        },
-
-        {
-            id: 2,
-            title: "How to Unlock a User Account",
-            category: "Account",
-            description: "Steps for unlocking a user account after multiple failed login attempts."
-        },
-
-        {
-            id: 3,
-            title: "Computer Is Running Slowly",
-            category: "Hardware",
-            description: "Basic troubleshooting steps for a computer experiencing slow performance."
-        },
-
-        {
-            id: 4,
-            title: "No Internet Connection",
-            category: "Network",
-            description: "Basic troubleshooting steps when a computer cannot connect to the internet."
-        },
-
-        {
-            id: 5,
-            title: "How to Clear Browser Cache",
-            category: "Software",
-            description: "Steps for clearing cached browser data when websites are not loading correctly."
-        },
-
-        {
-            id: 6,
-            title: "Printer Is Not Printing",
-            category: "Hardware",
-            description: "Basic troubleshooting steps for a printer that is not producing printed documents."
-        },
-
-        {
-            id: 7,
-            title: "Microsoft Application Is Not Responding",
-            category: "Software",
-            description: "Troubleshooting steps for Microsoft applications that become frozen or stop responding."
-        },
-
-        {
-            id: 8,
-            title: "How to Check an IP Address",
-            category: "Network",
-            description: "Instructions for checking the IP address assigned to a Windows computer."
-        },
-
-        {
-            id: 9,
-            title: "Computer Has No Audio",
-            category: "Hardware",
-            description: "Basic troubleshooting steps for a computer that has no sound."
-        },
-
-        {
-            id: 10,
-            title: "When Should an IT Ticket Be Escalated?",
-            category: "Other",
-            description: "Guidelines for determining when a helpdesk ticket should be escalated to another team."
-        }
-
-    ];
-
-// ======================
-//    Shared Functions
-// ======================
-
-// Getting tickets from the local storage
-
-function getTickets() {
-
-    const tickets = [];
-
-    for (let i = 0; i < localStorage.length; i++) {
-
-        const key = localStorage.key(i);
-
-        if (key === "currentTicket") {
-            continue;
-        }
-
-        const ticketData = localStorage.getItem(key);
+    async function loadSidebarAccount() {
 
         try {
 
-            const ticket = JSON.parse(ticketData);
+            const response = await fetch(
+                "/api/me",
+                {
+                    credentials: "include"
+                }
+            );
 
-            if (ticket && ticket.ticketNumber) {
-                tickets.push(ticket);
+            if (!response.ok) {
+                throw new Error(
+                    "Failed to retrieve current user."
+                );
             }
+
+            const user = await response.json();
+
+            accountName.textContent =
+                user.fullName;
+
+            accountEmail.textContent =
+                user.email;
+
         } catch (error) {
 
-            // Ignore localStorage items that are not tickets
+            console.error(
+                "Failed to load sidebar account:",
+                error
+            );
 
         }
 
     }
 
-    return tickets;
+
+    // Toggle account menu
+
+    accountMenuButton.addEventListener("click", function(event) {
+
+        event.stopPropagation();
+
+        const menuIsOpen =
+            accountMenu.style.display === "block";
+
+        accountMenu.style.display =
+            menuIsOpen
+                ? "none"
+                : "block";
+
+    });
+
+
+    // Close menu when clicking elsewhere
+
+    document.addEventListener("click", function(event) {
+
+        if (
+            !accountMenu.contains(event.target) &&
+            !accountMenuButton.contains(event.target)
+        ) {
+
+            accountMenu.style.display =
+                "none";
+
+        }
+
+    });
+
+
+    // Logout
+
+    logoutButton.addEventListener("click", async function() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/logout",
+                    {
+                        method: "POST",
+                        credentials: "include"
+                    }
+                );
+
+            if (!response.ok) {
+
+                const data =
+                    await response.json();
+
+                alert(
+                    data.error ||
+                    "Failed to log out."
+                );
+
+                return;
+            }
+
+            window.location.href =
+                "index.html";
+
+        } catch (error) {
+
+            console.error(
+                "Logout failed:",
+                error
+            );
+
+            alert(
+                "Unable to connect to the server."
+            );
+
+        }
+
+    });
+
+
+    loadSidebarAccount();
 
 }
+
 
 // ========================
 //    Login Page Scripts
@@ -236,22 +191,17 @@ if (loginPage) {
     const loginForm = document.getElementById("login-form");
     const loginUsername = document.getElementById("login-username");
     const loginPassword = document.getElementById("login-password");
-    const loginRemember = document.getElementById("login-remember");
     const loginPasswordToggle = document.getElementById("login-password-toggle");
     const loginError = document.getElementById("login-error");
     const loginButton = document.querySelector(".login-button");
     const loginForgotPassword = document.getElementById("login-forgot-password");
 
-    // Login remember me
+    // Remember Me
 
+    const loginRemember = document.getElementById("login-remember");
     const rememberedUsername = localStorage.getItem("rememberedUsername");
 
-    if (rememberedUsername) {
 
-        loginUsername.value = rememberedUsername;
-        loginRemember.checked = true;
-
-    }
 
     // Login password eye icon
 
@@ -300,6 +250,12 @@ if (loginPage) {
                 })
             });
 
+            if (loginRemember.checked) {
+                localStorage.setItem("rememberedUsername", loginUsername.value.trim());
+            } else {
+                localStorage.removeItem("rememberedUsername");
+            }
+
             const data = await response.json();
 
             if (!response.ok) {
@@ -310,23 +266,6 @@ if (loginPage) {
                 loginError.style.display = "block";
 
                 return;
-            }
-
-            // Remember username only, never the password
-
-            if (loginRemember.checked) {
-
-                localStorage.setItem(
-                    "rememberedUsername",
-                    username
-                );
-
-            } else {
-
-                localStorage.removeItem(
-                    "rememberedUsername"
-                );
-
             }
 
             if (data.user.role === "employee") {
@@ -367,7 +306,36 @@ if (loginPage) {
 
         event.preventDefault();
 
-        alert("Password reset page under construction.");
+        window.location.href = "forgot-password.html";
+
+    });
+
+    if (rememberedUsername) {
+        loginUsername.value = rememberedUsername;
+        loginRemember.checked = true;
+    }
+
+}
+
+// =============================
+//    Forgot Password Scripts
+// =============================
+
+if (forgotPassword) {
+
+    // Request button
+
+    const requestPasswordResetButton = document.getElementById("forgot-password-submit");
+    const requestSuccessMessage = document.getElementById("forgot-password-notification");
+    const forgotPasswordPage = document.getElementById("forgot-password-request");
+
+    requestPasswordResetButton.addEventListener("click", function(event) {
+
+        requestPasswordResetButton.innerHTML = '<i data-lucide="loader-circle"></i>Submitting...';
+        lucide.createIcons();
+
+        forgotPasswordPage.style.display = "none";
+        requestSuccessMessage.style.display = "flex";
 
     });
 
@@ -642,7 +610,10 @@ if (dashboardPage) {
 
     }
 
+    // Sidebar and Dashboard
+    initializeSidebarAccount();
     initializeDashboard();
+    
 
 }
 
@@ -881,17 +852,12 @@ if (createTicketPage) {
                 return;
             }
 
-            localStorage.setItem(
-                "currentTicket",
-                data.ticketId
-            );
-
             alert(
                 "Ticket created successfully!\n\nTicket Number: " +
                 data.ticketNumber
             );
 
-            window.location.href = "ticket-main-page.html";
+            window.location.href = `ticket-main-page.html?id=${data.ticketId}`;
 
         } catch (error) {
 
@@ -930,16 +896,12 @@ if (createTicketPage) {
     // Event Listeners
 
     userInput.addEventListener("input", searchUser);
+    createButton.addEventListener("click", createTicket);
+    cancelButton.addEventListener("click",cancelTicket);
 
-    createButton.addEventListener(
-        "click",
-        createTicket
-    );
+    //Side Bar
 
-    cancelButton.addEventListener(
-        "click",
-        cancelTicket
-    );
+    initializeSidebarAccount();
 
 }
 
@@ -985,6 +947,10 @@ if (mainTicketInformationPage) {
     const ticketAssignedDepartmentResults = document.getElementById("ticket-assigned-department-results");
     const ticketAssignedTechnicianResults = document.getElementById("ticket-assigned-technician-results");
 
+    // UnsavedChanges
+
+    let ticketHasUnsavedChanges = false;
+    
     // Getting and displaying worknotes
 
     async function loadWorknoteHistory() {
@@ -1023,7 +989,7 @@ if (mainTicketInformationPage) {
                 header.classList.add("main-ticket-information-worknote-header");
                 const username = document.createElement("span");
                 username.classList.add("main-ticket-information-worknote-user");
-                username.textContent = worknote.username;
+                username.textContent = worknote.full_name;
                 const date = document.createElement("span");
                 date.classList.add("main-ticket-information-worknote-date");
                 date.textContent = new Date(worknote.created_at).toLocaleString();
@@ -1042,7 +1008,7 @@ if (mainTicketInformationPage) {
 
             console.error("Failed to load worknotes:", error);
             const errorMessage = createElement("p");
-            errorMessage = document.classList.add("main-ticket-information-worknotes-empty");
+            errorMessage.classList.add("main-ticket-information-worknotes-empty");
             errorMessage.textContent = "Unable to load worknotes.";
             ticketWorknotesHistory.appendChild(errorMessage);
 
@@ -1122,6 +1088,8 @@ if (mainTicketInformationPage) {
             } else {
                 unlockTicket();
             }
+
+            ticketHasUnsavedChanges = false;
 
         } catch (error) {
 
@@ -1326,9 +1294,11 @@ if (mainTicketInformationPage) {
             const technicians = await response.json();
             const matchingTechnicians = technicians.filter(function(technician) {
 
-                return (
-                    technician.full_name.toLowerCase().includes(searchValue)
-                );
+                const fullName = (technician.full_name || "").toLowerCase();
+                const userName = (technician.username || "").toLowerCase();
+
+                return (fullName.includes(searchValue) ||
+                        userName.includes(searchValue));
 
             });
 
@@ -1372,7 +1342,7 @@ if (mainTicketInformationPage) {
 
         } catch (error) {
 
-            console.error("Techinician search failed:", error);
+            console.error("Technician search failed:", error);
 
         }
 
@@ -1403,6 +1373,15 @@ if (mainTicketInformationPage) {
         return false;
 
     }
+
+    if (ticketAssignedDepartment.value.trim() !== "" &&
+        ticketAssignedTechnician.value.trim() === "") {
+
+            alert("Please assign a technician.");
+            ticketAssignedTechnician.focus();
+            return false;
+
+        }
 
     const updatedTicket = {
 
@@ -1462,6 +1441,8 @@ if (mainTicketInformationPage) {
         if (showAlert) {
             alert("Ticket changes saved.");
         }
+
+        ticketHasUnsavedChanges = false;
 
         await loadCurrentTicket();
 
@@ -1537,6 +1518,7 @@ if (mainTicketInformationPage) {
         try {
 
             const response = await fetch(
+
                 `/api/tickets/${encodeURIComponent(ticketId)}/worknotes`,
                 {
                     method: "POST",
@@ -1544,10 +1526,9 @@ if (mainTicketInformationPage) {
                         "Content-Type": "application/json"
                     },
                     credentials: "include",
-                    body: JSON.stringify({
-                        note: note
-                    })
+                    body: JSON.stringify({note: note})
                 }
+
             );
 
             const data = await response.json();
@@ -1555,19 +1536,22 @@ if (mainTicketInformationPage) {
             if (!response.ok) {
 
                 if (showAlert) {
-                    alert(
-                        data.error ||
-                        "Failed to publish worknote."
-                    );
+                    alert(data.error || "Failed to publish worknote.");
                 }
 
                 return false;
+
             }
 
+            // Clear worknotes textarea
             ticketWorknotes.value = "";
 
+            // Refresh worknotes history
+            await loadWorknoteHistory();
+
+            ticketHasUnsavedChanges = false;
+
             if (showAlert) {
-                await loadWorknoteHistory();
                 alert("Worknote published.");
             }
 
@@ -1575,22 +1559,24 @@ if (mainTicketInformationPage) {
 
         } catch (error) {
 
-            console.error(
-                "Failed to publish worknote:",
-                error
-            );
-
+            console.error("Failed to publish worknote:", error);
             if (showAlert) {
                 alert("Unable to connect to the server.");
             }
 
             return false;
+
         }
+
     }
 
     // Load Ticket
 
     loadCurrentTicket();
+
+    //Side Bar
+
+    initializeSidebarAccount();
 
     // Event Listeners
 
@@ -1601,6 +1587,58 @@ if (mainTicketInformationPage) {
     publishWorknoteButton.addEventListener("click",publishWorknote);
     ticketAssignedDepartment.addEventListener("input", searchAssignedDepartment);
     ticketAssignedTechnician.addEventListener("input", searchAssignedTechician);
+
+    // User tries to exit without saving changes
+
+    const ticketEditableFields = [
+        ticketAssignedDepartment,
+        ticketAssignedTechnician,
+        ticketCategory,
+        ticketPriority,
+        ticketStatus,
+        ticketSubject,
+        ticketDescription
+    ];
+
+    ticketEditableFields.forEach(function(field) {
+
+        if (!field) {
+            return;
+        }
+
+        field.addEventListener("change", function() {
+            ticketHasUnsavedChanges = true;
+        });
+
+        field.addEventListener("input", function() {
+            ticketHasUnsavedChanges = true;
+        });
+
+    });
+
+    // Worknote changes
+
+    ticketWorknotes.addEventListener("input", function() {
+
+        if (ticketWorknotes.value.trim() !== "") {
+            ticketHasUnsavedChanges = true;
+        }
+
+    });
+
+    // Browser exit / refresh / back warning
+
+    window.addEventListener(
+        "beforeunload", function(event) {
+            if (!ticketHasUnsavedChanges) {
+                return;
+            }
+            
+            event.preventDefault();
+            event.returnValue = "";
+        }
+    );
+
 
 }
 
@@ -1643,6 +1681,21 @@ if (ticketListPage) {
     const ticketList = document.querySelector(".main-ticket-list-main-list");
     const ticketListCount = document.getElementById("main-ticket-list-count");
 
+    function getTicketDateValue (createdAt) {
+
+        if (!createdAt) {
+            return "";
+        }
+
+        const date = new Date(createdAt);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+
+    }
+
     // Getting tickets from API
 
     async function getTicketsFromAPI() {
@@ -1678,6 +1731,7 @@ if (ticketListPage) {
                     assignedDepartment: ticket.assigned_department || "",
                     worknotes: "",
                     createdDate: new Date(ticket.created_at).toLocaleDateString(),
+                    createdDateValue: getTicketDateValue(ticket.created_at),
                     resolvedDate: ticket.resolved_at
 
                 };
@@ -1762,8 +1816,6 @@ if (ticketListPage) {
 
         const tickets = await getTicketsFromAPI();
 
-        console.log(tickets);
-
         const filteredTickets = tickets.filter(function(ticket) {
 
             const ticketNumberMatch = ticket.ticketNumber.toLowerCase().includes(ticketNumberFilter.value.toLowerCase());
@@ -1774,7 +1826,7 @@ if (ticketListPage) {
                 : ticket.assignedTo.toLowerCase().includes(technicianFilter.value.toLowerCase());
             const priorityMatch = priorityFilter.value === "" || ticket.priority === priorityFilter.value;
             const statusMatch = statusFilter.value === "" || ticket.status === statusFilter.value;
-            const dateMatch = ticket.createdDate.toLowerCase().includes(dateFilter.value.toLowerCase());
+            const dateMatch = dateFilter.value === "" || ticket.createdDateValue === dateFilter.value;
             const categoryMatch = categoryFilter.value === "" || ticket.category === categoryFilter.value;
 
             return (
@@ -1847,9 +1899,14 @@ if (ticketListPage) {
         priorityFilter.value = "low";
     }
 
+    // Side Bar
+    
+    initializeSidebarAccount();
+
     // First landing page (no filters applied)
 
     applyFilters();
+
 }
 
 // ============================
@@ -1858,29 +1915,55 @@ if (ticketListPage) {
 
 if (knowledgeBasePage) {
 
+
     const knowledgeBaseSearch = document.getElementById("search-bar");
     const knowledgeBaseCategoryCards = document.querySelectorAll(".card-knowledge-base");
+    const knowledgeBaseArticleList = document.getElementById("main-knowledge-base-article-list");
 
     let selectedCategories = [];
+    let knowledgeBaseUserRole = null;
+
+    // Load KB articles from API
+
+    async function getKnowledgeBaseArticles() {
+
+        try {
+
+            const response = await fetch("/api/knowledge-base", 
+                {
+                    credentials: "include"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to retrieve knowledge base articles.");
+            }
+
+            return await response.json();
+
+        } catch (error) {
+
+            console.error("Failed to load knowledge base articles:", error);
+            return [];
+
+        }
+
+    }
 
 
-    // Loading KB Articles
+    // Display KB articles
 
     function loadKnowledgeBaseArticles(articles) {
 
-        const articleList = document.getElementById("main-knowledge-base-article-list");
+        knowledgeBaseArticleList.innerHTML = "";
 
-        articleList.innerHTML = "";
-
-        if (articles.length === 0) {
+        if(articles.length === 0) {
 
             const noResults = document.createElement("div");
-
             noResults.classList.add("knowledge-base-no-results");
             noResults.textContent = "No articles found.";
-
-            articleList.appendChild(noResults);
-
+            knowledgeBaseArticleList.appendChild(noResults);
+            
             return;
 
         }
@@ -1890,90 +1973,323 @@ if (knowledgeBasePage) {
             const articleCard = document.createElement("div");
             articleCard.classList.add("knowledge-base-article");
 
+            // Open article
+
             articleCard.addEventListener("click", function() {
-
-                localStorage.setItem("currentKnowledgeBaseArticle", article.id);
-                window.location.href = "knowledge-base-article-main-page.html";
-
+                window.location.href = `knowledge-base-article-main-page.html?id=${article.article_id}`;
             });
+
+            // Title
 
             const articleTitle = document.createElement("h3");
             articleTitle.textContent = article.title;
 
+            // Category
+
             const articleCategory = document.createElement("span");
             articleCategory.textContent = article.category;
 
+            // Content preview
+
             const articleDescription = document.createElement("p");
-            articleDescription.textContent = article.description;
+            articleDescription.textContent = article.content.problem;
 
             articleCard.appendChild(articleTitle);
             articleCard.appendChild(articleCategory);
             articleCard.appendChild(articleDescription);
-            articleList.appendChild(articleCard);
+            knowledgeBaseArticleList.appendChild(articleCard);
+
+            if (knowledgeBaseUserRole === "admin") {
+
+                const managementButtons = document.createElement("div");
+                managementButtons.classList.add("knowledge-base-article-management");
+
+                // Edit button
+
+                const editButton = document.createElement("button");
+                editButton.type = "button";
+                editButton.classList.add("knowledge-base-article-edit");
+                editButton.innerHTML = '<i data-lucide="pencil"></i>Edit';
+                editButton.addEventListener("click", function(event) {
+                    event.stopPropagation();
+                    window.location.href = `knowledge-base-manage.html?id=${article.article_id}`;
+                });
+
+
+                // Delete button
+
+                const deleteButton = document.createElement("button");
+                deleteButton.type = "button";
+                deleteButton.classList.add("knowledge-base-article-delete");
+                deleteButton.innerHTML = '<i data-lucide="trash-2"></i>Delete';
+                deleteButton.addEventListener("click", async function(event) {
+
+                    event.stopPropagation();
+                    const confirmDelete = confirm(`Delete "${article.title}"?`);
+                    if (!confirmDelete) {
+                        return;
+                    }
+
+                    try {
+
+                        const response = await fetch(`/api/knowledge-base/${article.article_id}`,
+                            {
+                                method: "DELETE",
+                                credentials: "include"
+                            }
+                        );
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+
+                            alert(data.error || "Failed to delete article.");
+                            return;
+
+                        }
+
+                        alert("Article deleted successfully.");
+
+                        // Reload KB data
+
+                        knowledgeBaseArticles = await getKnowledgeBaseArticles();
+                        updateCategoryCounts();
+                        searchKnowledgeBase();
+
+                    } catch (error) {
+
+                        console.error("Failed to delete article:", error);
+                        alert("Unable to connect to the server.");
+
+                    }
+
+                });
+
+                managementButtons.appendChild(editButton);
+                managementButtons.appendChild(deleteButton);
+                articleCard.appendChild(managementButtons);
+
+            }
+            
+            knowledgeBaseArticleList.appendChild(articleCard);
 
         });
 
+        lucide.createIcons();
+
     }
+
+    // Search and Filter
 
     function searchKnowledgeBase() {
 
-        const searchText = knowledgeBaseSearch.value.toLowerCase();
-        const searchedArticles = knowledgeBaseArticles.filter(function(article) {
-
-            const searchMatch =
-                article.title.toLowerCase().includes(searchText) ||
-                article.description.toLowerCase().includes(searchText) ||
-                article.category.toLowerCase().includes(searchText);
-
-            const categoryMatch = 
-                selectedCategories.length === 0 ||
-                selectedCategories.includes(article.category);
-
-
-            return searchMatch && categoryMatch;
-
-        });
-
-        loadKnowledgeBaseArticles(searchedArticles);
-
-    }
-
-    loadKnowledgeBaseArticles(knowledgeBaseArticles);
-
-    // Event Listeners
-
-    knowledgeBaseSearch.addEventListener("input", function(){
-        searchKnowledgeBase();
-    });
-
-    knowledgeBaseCategoryCards.forEach(function(card) {
-
-        card.addEventListener("click", function(event) {
-
-            event.preventDefault();
+        const searchText = knowledgeBaseSearch.value.trim().toLowerCase();
+        const filteredArticles = knowledgeBaseArticles.filter(
             
-            const category = card.dataset.category;
+            function(article) {
 
-            if (selectedCategories.includes(category)) {
+                const searchMatch = getKnowledgeBaseSearchText(article).includes(searchText);
 
-                selectedCategories = selectedCategories.filter(function(selectedCategory) {
-                    return selectedCategory !== category;
-                }); 
-                card.classList.remove("active");
+                const categoryMatch = selectedCategories.length === 0 ||
+                    selectedCategories.includes(article.category);
 
-            } else {
-
-                selectedCategories.push(category);
-                card.classList.add("active");
+                return (
+                    searchMatch && categoryMatch
+                );
 
             }
 
-            searchKnowledgeBase();
+        );
 
-        });
+        loadKnowledgeBaseArticles(filteredArticles);
 
+    }
+
+    function getKnowledgeBaseSearchText(article) {
+
+        return [
+            article.title || "",
+            article.category || "",
+            article.content?.problem || "",
+            ...(article.content?.causes || []),
+            ...(article.content?.steps || []),
+            article.content?.resolution || ""
+        ].join(" ").toLowerCase();
+
+    }
+
+    // Update category counts
+
+    function updateCategoryCounts() {
+
+        knowledgeBaseCategoryCards.forEach(
+
+            function(card) {
+
+                const category = card.dataset.category;
+                const count = knowledgeBaseArticles.filter(
+
+                    function(article) {
+                        return(article.category === category);
+                    }
+
+                ).length;
+
+                const countElement = card.querySelector("p");
+                countElement.textContent = count;
+
+            }
+
+        );
+
+
+    }
+
+    // Initialize Knowledge Base
+
+    async function initializeKnowledgeBase() {
+
+        const technicianSidebar = document.getElementById("technician-sidebar-navigation");
+        const employeeSidebar = document.getElementById("employee-sidebar-navigation");
+        technicianSidebar.style.display = "none";
+        employeeSidebar.style.display = "none";
+
+        try {
+
+            const response = await fetch(
+                "/api/me",
+                {
+                    credentials: "include"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    "Failed to retrieve current user."
+                );
+            }
+
+            const data = await response.json();
+
+            knowledgeBaseUserRole =
+                data.role;
+
+
+            if (data.role === "employee") {
+
+                employeeSidebar.style.display =
+                    "block";
+
+            } else if (
+                data.role === "technician" ||
+                data.role === "admin"
+            ) {
+
+                technicianSidebar.style.display =
+                    "block";
+
+            }
+
+            // Create Article button
+
+            const createArticleButton =
+                document.getElementById(
+                    "knowledge-base-create-article-button"
+                );
+
+            createArticleButton.style.display =
+                data.role === "admin"
+                    ? "flex"
+                    : "none";
+
+        } catch (error) {
+
+            console.error(
+                "Failed to check user role:",
+                error
+            );
+
+        }
+
+        knowledgeBaseArticles = await getKnowledgeBaseArticles();
+
+        try {
+
+            const response = await fetch ("/api/me", {
+                credentials: "include"
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                knowledgeBaseUserRole = data.role;
+            }
+
+        } catch (error) {
+            console.error("Failed to check user role:", error);
+        }
+
+        updateCategoryCounts();
+        loadKnowledgeBaseArticles(knowledgeBaseArticles);
+
+        // Show or hide article button
+
+        const createArticleButton = document.getElementById("knowledge-base-create-article-button");
+        createArticleButton.style.display = 
+            knowledgeBaseUserRole === "admin"
+                ? "flex"
+                : "none";
+
+    }
+
+    // Search
+
+    knowledgeBaseSearch.addEventListener("input", function() {
+        searchKnowledgeBase();
     });
 
+    // Category filters
+
+    knowledgeBaseCategoryCards.forEach(
+
+        function(card) {
+
+            card.addEventListener("click", function(event) {
+
+                event.preventDefault();
+                const category = card.dataset.category;
+
+                if (selectedCategories.includes(category)) {
+
+                    selectedCategories = selectedCategories.filter(function(selectedCategory) {
+
+                        return (selectedCategory !== category);
+
+                    });
+
+                    card.classList.remove("active");
+
+                } else {
+
+                    selectedCategories.push(category);
+                    card.classList.add("active");
+
+                }
+
+                searchKnowledgeBase();
+
+            });
+
+        }
+
+    );
+
+    // Start page
+
+    initializeKnowledgeBase();
+
+    //Side Bar
+
+    initializeSidebarAccount();
 
 }
 
@@ -1983,73 +2299,158 @@ if (knowledgeBasePage) {
 
 if (knowledgeBaseArticlePage) {
 
-    // Getting saved article from local storage
+    // Current article ID from URL
 
-    const currentArticle = localStorage.getItem("currentKnowledgeBaseArticle");
-    const article = knowledgeBaseArticles.find(function(article) {
-        return article.id === Number(currentArticle);
-    });
+    const urlParameters = new URLSearchParams(window.location.search);
+    const articleId = urlParameters.get("id");
 
-    // Error Handling - When no KB article is detected
+    // HTML Elements
 
-    if (!article) {
-        const articleContent = document.getElementById("knowledge-base-article-content");
+    const articleTitle = document.getElementById("knowledge-base-article-title");
+    const articleCategory = document.getElementById("knowledge-base-article-category");
+    const articleDate = document.getElementById("knowledge-base-article-date");
+    const articleReadTime = document.getElementById("knowledge-base-article-read-time");
+    const articleContent = document.getElementById("knowledge-base-article-content");
+    const relatedArticlesContainer = document.getElementById("knowledge-base-related-articles");
+
+    function initializeKnowledgeBaseSidebar() {
+
+        const technicianSidebar =
+            document.getElementById("technician-sidebar-navigation");
+
+        const employeeSidebar =
+            document.getElementById("employee-sidebar-navigation");
+
+        technicianSidebar.style.display = "none";
+        employeeSidebar.style.display = "none";
+
+        fetch("/api/me", {
+            credentials: "include"
+        })
+        .then(async function(response) {
+
+            if (!response.ok) {
+                throw new Error("Failed to retrieve current user.");
+            }
+
+            return await response.json();
+
+        })
+        .then(function(data) {
+
+            if (data.role === "employee") {
+
+                employeeSidebar.style.display = "block";
+
+            } else if (
+                data.role === "technician" ||
+                data.role === "admin"
+            ) {
+
+                technicianSidebar.style.display = "block";
+
+            }
+
+        })
+        .catch(function(error) {
+
+            console.error(
+                "Failed to initialize sidebar:",
+                error
+            );
+
+        });
+
+    }   
+    
+    // Display article not found
+
+    function showArticleNotFound() {
+
         articleContent.innerHTML = "";
         const message = document.createElement("div");
         message.classList.add("knowledge-base-article-not-found");
         message.textContent = "Article not found.";
-
         articleContent.appendChild(message);
-    } else {
 
-        // Article Title and Metadata
+    }
 
-        const articleTitle = document.getElementById("knowledge-base-article-title");
-        const articleCategory = document.getElementById("knowledge-base-article-category");
-        const articleDate = document.getElementById("knowledge-base-article-date");
-        const articleReadTime = document.getElementById("knowledge-base-article-read-time");
+    // Calculate estimated reading time
 
-        articleTitle.textContent = article.title;
-        articleCategory.textContent = article.category;
-        articleDate.textContent = "Updated" + article.updatedDate;
-        articleReadTime.textContent = article.readTime;
+    function calculateReadTime(content) {
 
-        // Article Contents
-        
-        const articleContent = document.getElementById("knowledge-base-article-content");
+        let text = "";
+
+        if (typeof content === "string") {
+
+            text = content;
+
+        } else if (content && typeof content === "object") {
+
+            text = [
+                content.problem || "",
+                ...(content.causes || []),
+                ...(content.steps || []),
+                content.resolution || ""
+            ].join(" ");
+
+        }
+
+        const words =
+            text
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean)
+                .length;
+
+        const minutes =
+            Math.max(1, Math.ceil(words / 200));
+
+        return `${minutes} min read`;
+    }
+
+    // Display article content
+
+    function loadArticleContent(content) {
+
+        articleContent.innerHTML = "";
 
         // Article Problem
 
         const problemTitle = document.createElement("h2");
-        problemTitle.innerHTML = '<i data-lucide="triangle-alert"></i> Problem';
+        problemTitle.innerHTML =
+            '<i data-lucide="triangle-alert"></i> Problem';
+
         const problemText = document.createElement("p");
-        problemText.textContent = article.content.problem;
+        problemText.textContent = content.problem;
 
         articleContent.appendChild(problemTitle);
         articleContent.appendChild(problemText);
 
-        // Article Causes
+
+        // Article Possible Causes
 
         const causesTitle = document.createElement("h2");
-        causesTitle.innerHTML = '<i data-lucide="search></i> Possible Causes';
+        causesTitle.innerHTML = '<i data-lucide="search"></i> Possible Causes';
+        articleContent.appendChild(causesTitle);
         const causesList = document.createElement("ul");
-        article.content.causes.forEach(function(cause) {
+        content.causes.forEach(function(cause) {
 
             const causeItem = document.createElement("li");
             causeItem.textContent = cause;
             causesList.appendChild(causeItem);
 
         });
-        
-        articleContent.appendChild(causesTitle);
+
         articleContent.appendChild(causesList);
 
-        // Article Troubleshooting Steps
+        // Troubleshooting Steps
 
         const stepsTitle = document.createElement("h2");
         stepsTitle.innerHTML = '<i data-lucide="wrench"></i> Troubleshooting Steps';
+        articleContent.appendChild(stepsTitle);
         const stepsList = document.createElement("ol");
-        article.content.steps.forEach(function(step) {
+        content.steps.forEach(function(step) {
 
             const stepItem = document.createElement("li");
             stepItem.textContent = step;
@@ -2057,7 +2458,6 @@ if (knowledgeBaseArticlePage) {
 
         });
 
-        articleContent.appendChild(stepsTitle);
         articleContent.appendChild(stepsList);
 
         // Article Resolution
@@ -2065,50 +2465,61 @@ if (knowledgeBaseArticlePage) {
         const resolutionTitle = document.createElement("h2");
         resolutionTitle.innerHTML = '<i data-lucide="circle-check"></i> Resolution';
         const resolutionText = document.createElement("p");
-        resolutionText.textContent = article.content.resolution;
-
+        resolutionText.textContent = content.resolution;
         articleContent.appendChild(resolutionTitle);
         articleContent.appendChild(resolutionText);
 
-        lucide.createIcons();
-
     }
 
-    // Related Articles Section
+    // Load related articles
 
-        const relatedArticles = knowledgeBaseArticles.filter(function(relatedArticles) {
+    async function loadRelatedArticles(currentArticle) {
 
-            return (
-                relatedArticles.category === article.category &&
-                relatedArticles.id !== article.id
+        relatedArticlesContainer.innerHTML = "";
+
+        try {
+
+            const response = await fetch("/api/knowledge-base",
+                {
+                    credentials: "include"
+                }
             );
 
-        });
-        const relatedArticlesContainer = document.getElementById("knowledge-base-related-articles");
+            if (!response.ok) {
+                throw new Error("Failed to retrieve related articles.");
+            }
 
-        if (relatedArticles.length === 0) {
+            const articles = await response.json();
+            const relatedArticles = articles.filter(function(article) {
 
-            const norelatedArticles = document.createElement("p");
-            norelatedArticles.textContent = "No related articles found.";
-            relatedArticlesContainer.appendChild(norelatedArticles);
+                return (
 
-        } else {
+                    article.category === currentArticle.category &&
+                    article.article_id !== currentArticle.article_id
+
+                );
+
+            });
+
+            if (relatedArticles.length === 0) {
+
+                const noRelatedArticles = document.createElement("p");
+                noRelatedArticles.textContent = "No related articles found.";
+                relatedArticlesContainer.appendChild(noRelatedArticles);
+
+                return;
+
+            }
 
             relatedArticles.forEach(function(relatedArticle) {
 
                 const relatedArticleLink = document.createElement("a");
-                relatedArticleLink.href = "knowledge-base-article-main-page.html";
+                relatedArticleLink.href = `knowledge-base-article-main-page.html?id=${relatedArticle.article_id}`;
                 relatedArticleLink.classList.add("knowledge-base-related-article");
-                relatedArticleLink.addEventListener("click", function() {
-
-                    localStorage.setItem("currentKnowledgeBaseArticle", relatedArticle.id);
-
-                });
-
                 const relatedArticleTitle = document.createElement("h3");
                 relatedArticleTitle.textContent = relatedArticle.title;
                 const relatedArticleDescription = document.createElement("p");
-                relatedArticleDescription.textContent = relatedArticle.description;
+                relatedArticleDescription.textContent = relatedArticle.content.problem;
 
                 relatedArticleLink.appendChild(relatedArticleTitle);
                 relatedArticleLink.appendChild(relatedArticleDescription);
@@ -2116,7 +2527,345 @@ if (knowledgeBaseArticlePage) {
 
             });
 
+        } catch (error) {
+
+            console.error("Failed to load related articles:", error);
+            const errorMessage = document.createElement("p");
+            errorMessage.textContent = "Unable to load related articles.";
+            relatedArticlesContainer.appendChild(errorMessage);
+            
         }
+
+    }
+
+    // Load current article
+
+    async function loadKnowledgeBaseArticle() {
+
+        if (!articleId) {
+
+            showArticleNotFound();
+            return;
+
+        }
+
+        try {
+
+            const response = await fetch (`/api/knowledge-base/${encodeURIComponent(articleId)}`,
+                {
+                    credentials: "include"
+                }
+        
+            );
+
+            if (!response.ok) {
+
+                if (response.status === 404) {
+                    showArticleNotFound();
+                } else {
+                    console.error("Failed to retrieve article.");
+                }
+
+                return;
+
+            }
+
+            const article = await response.json();
+            
+            // Article title
+
+            articleTitle.textContent = article.title;
+
+            // Article category
+
+            articleCategory.textContent = article.category;
+
+            // Updated date
+
+            articleDate.textContent = "Updated " + new Date(article.updated_at).toLocaleDateString();
+
+            // Reading time
+
+            articleReadTime.textContent = calculateReadTime(article.content);
+
+            // Article Content
+
+            loadArticleContent(article.content);
+
+            // Related articles
+
+            await loadRelatedArticles(article);
+
+            // Refresh Lucide icons
+
+            lucide.createIcons();
+
+        } catch (error) {
+
+            console.error("Failed to load knowledge base article:", error);
+            articleContent.innerHTML = "";
+            const errorMessage = document.createElement("div");
+            errorMessage.classList.add("knowledge-base-article-not-found");
+            errorMessage.textContent = "Unable to load article.";
+            articleContent.appendChild(errorMessage);
+
+        }
+
+    }
+
+    // Load Knowledge Base Article
+
+    loadKnowledgeBaseArticle();
+
+    // Side Bar
+    
+    initializeSidebarAccount();
+
+    // Employee Side Bar
+
+    initializeKnowledgeBaseSidebar();
+
+}
+
+// ===================================
+//    Knowledge Base Create Article
+// ===================================
+
+if (knowledgeBaseCreateArticlePage) {
+
+    // HTML Elements
+
+    const articlePageTitle = document.getElementById("knowledge-base-create-article-title");
+    const articleTitleInput = document.getElementById("create-article-title");
+    const articleCategoryInput = document.getElementById("create-article-category");
+    const articleProblemInput = document.getElementById("create-article-problem");
+    const articleCausesInput = document.getElementById("create-article-causes");
+    const articleTroubleshootInput = document.getElementById("create-article-troubleshoot");
+    const articleResolutionInput = document.getElementById("create-article-resolve");
+    const cancelButton = document.getElementById("knowledge-base-create-article-cancel-button");
+    const submitButton = document.getElementById("knowledge-base-create-article-submit-button");
+
+    // Determine create or edit mode
+
+    const urlParameters = new URLSearchParams(window.location.search);
+    const articleId = urlParameters.get("id");
+    const editMode = articleId !== null;
+
+    // Convert textarea lines into an array
+
+    function convertLinesToArray(value) {
+
+        return value.split("\n").map(function(line) {
+            return line.trim();
+        }).filter(Boolean);
+
+    }
+
+    // Load article for edit mode
+
+    async function loadArticleForEdit() {
+
+        if (!editMode) {
+            return;
+        }
+
+        try {
+
+            const response = await fetch (`/api/knowledge-base/${encodeURIComponent(articleId)}`,
+            {
+                credentials: "include"
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+
+                alert(data.error || "Failed to load article.");
+                window.location.href = "knowledge-base.html";
+                return;
+
+            }
+
+            // Change page to edit mode
+
+            articlePageTitle.textContent = "Edit Article";
+            submitButton.innerHTML = '<i data-lucide="save"></i>Save Changes';
+
+            // Fill form
+
+            articleTitleInput.value = data.title || "";
+            articleCategoryInput.value = data.category || "";
+            articleProblemInput.value = data.content.problem || "";
+            articleCausesInput.value = (data.content.causes || []).join("\n");
+            articleTroubleshootInput.value = (data.content.steps || []).join("\n");
+            articleResolutionInput.value = data.content.resolution ||"";
+
+            lucide.createIcons();
+
+        } catch (error) {
+
+            console.error("Failed to load article for editing:", error);
+            alert("Unable to connect to the server.");
+            window.location.href("knowledge-base.html");
+
+        }
+
+    }
+
+    // Create article / upload article
+
+    async function saveKnowledgeBaseArticle() {
+
+        const title = articleTitleInput.value.trim();
+        const category = articleCategoryInput.value;
+        const problem = articleProblemInput.value.trim();
+        const causes = convertLinesToArray(articleCausesInput.value);
+        const steps = convertLinesToArray(articleTroubleshootInput.value);
+        const resolution = articleResolutionInput.value.trim();
+
+        // Validation
+
+        if (title === "") {
+            alert("Enter an article title.");
+            articleTitleInput.focus();
+            return;
+        }
+
+        if (category === "") {
+            alert("Select article category.");
+            articleCategoryInput.focus();
+            return;
+        }
+
+        if (problem === "") {
+            alert("Describe the problem.");
+            articleProblemInput.focus();
+            return;
+        }
+
+        if (causes.length === 0) {
+            alert("Enter at least one possible cause.");
+            articleCausesInput.focus();
+            return;
+        }
+
+        if (steps.length === 0) {
+            alert("Enter atleast one troubleshooting step.");
+            articleTroubleshootInput.focus();
+            return;
+        }
+
+        if (resolution === "") {
+            alert("Enter the article resolution.");
+            articleResolutionInput.focus();
+            return;
+        }
+
+        // Structured article content
+
+        const content = {
+
+            problem: problem,
+            causes: causes,
+            steps: steps,
+            resolution: resolution
+
+        };
+
+        submitButton.disabled = true;
+        submitButton.textContent = editMode ? "Saving..." : "Creating...";
+
+        try {
+            
+            const url = editMode
+                        ? `/api/knowledge-base/${encodeURIComponent(articleId)}`
+                        : "/api/knowledge-base";
+
+            const method = editMode ? "PUT" : "POST";
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    title: title,
+                    category: category,
+                    content: content
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(data.error ||
+                    (editMode
+                        ? "Failed to update article."
+                        : "Failed to create article."
+                    )
+                );
+                return;
+            }
+
+            alert(
+                editMode
+                    ? "Knowledge Base article updated successfully."
+                    : "Knowledge Base article created successfully.");
+            window.location.href = "knowledge-base.html";
+
+        } catch (error) {
+
+            console.error(
+                editMode
+                    ? "Failed to update Knowledge Base article:"
+                    : "Failed to create Knowledge Base article:", error);
+            alert("Unable to connect to the server.");
+
+        } finally {
+
+            submitButton.disabled = false;
+            
+            if (editMode) {
+                submitButton.innerHTML = '<i data-lucide="save"></i>Save Changes';
+            } else {
+                submitButton.innerHTML = '<i data-lucide="circle-plus"></i>Save Article';
+            }
+
+            lucide.createIcons();
+
+        }
+
+    }
+
+    // Cancel
+
+    function cancelKnowledgeBaseArticle() {
+
+        const confirmCancel = confirm(
+            editMode
+                ? "Are you sure you want to cancel editing?"
+                : "Are you sure you want to cancel?");
+        if (!confirmCancel) {
+            return;
+        }
+
+        window.location.href = "knowledge-base.html";
+
+    }
+
+    // Event listeners
+
+    submitButton.addEventListener("click", saveKnowledgeBaseArticle);
+    cancelButton.addEventListener("click", cancelKnowledgeBaseArticle);
+
+    // Start edit mode
+
+    loadArticleForEdit();
+
+    //Side Bar
+
+    initializeSidebarAccount();
 
 }
 
@@ -2274,13 +3023,6 @@ if (userHelpPage) {
                 return;
             }
 
-
-            console.log(
-                "Help request created:",
-                data
-            );
-
-
             // Display Success Message
 
             helpRequestForm.style.display =
@@ -2373,5 +3115,43 @@ if (userHelpPage) {
     // Load User
 
     loadHelpUser();
+
+    //Side Bar
+
+    initializeSidebarAccount();
+
+}
+
+// ========================
+//    About Page Scripts
+// ========================
+
+if (aboutPage) {
+
+    const aboutContent = document.getElementById("about-readme-content");
+
+    async function loadReadme() {
+
+        try {
+
+            const response = await fetch("/README.md");
+
+            if (!response.ok) {
+                throw new Error("Failed to load README.");
+            }
+
+            const markdown = await response.text();
+            aboutContent.innerHTML = marked.parse(markdown);
+
+        } catch (error) {
+
+            console.error("Failed to load README:", error);
+            aboutContent.textContent = "Unable to load project information.";
+
+        }
+
+    }
+
+    loadReadme();
 
 }

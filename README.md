@@ -1,14 +1,69 @@
 # NexusDesk
+IT Support Platform
 
 ## Overview
 
-NexusDesk is a web-based IT helpdesk and ticket management system inspired by platforms such as ServiceNow.
+NexusDesk is a web-based IT support and ticket management platform designed to centralize employee help requests, incident tracking, technician assignment, worknotes, and IT knowledge-base management.
 
-The project is being developed as a learning and portfolio project to practice web development, ticket management workflows, frontend development, and eventually backend/database integration.
+## Features
 
-The system is designed primarily for IT administrators and helpdesk technicians to create, manage, track, and resolve support tickets through a centralized dashboard.
+### Authentication
 
-## Technologies Used
+* Username or email login
+* Session-based authentication
+* Remember Me
+* Role-based access control
+* Secure password hashing with bcrypt
+* Logout and session destruction
+* Logged-in users are redirected to their appropriate landing page
+
+### Employee Support
+
+* Submit IT help requests
+* Automatic requester identification from the logged-in account
+* View and search the Knowledge Base
+* Employee-specific sidebar navigation
+* Forgot Password support request placeholder
+
+### Ticket Management
+
+* Create and manage support tickets
+* Ticket categories and priorities
+* Ticket status management
+* Requester information
+* Department and technician assignment
+* Automatic technician and department assignment when a technician creates a ticket
+* Ticket searching and filtering
+* Date-created filtering
+* Worknote history
+* Ticket resolution and reopening
+* Unsaved-change protection when editing tickets
+* Assignment validation to prevent invalid technician/department combinations
+
+### Knowledge Base
+
+* View Knowledge Base articles
+* Search articles
+* Filter by category
+* Structured article content
+* Related articles
+* Create articles
+* Edit articles
+* Delete articles
+* Admin-only article management
+* JSON-based article content stored in MySQL
+
+### User Interface
+
+* Role-specific sidebar navigation
+* Sticky sidebar
+* Account menu with current user information
+* About page
+* Responsive form and navigation layout
+* Lucide icons
+* NexusDesk custom UI styling
+
+## Technology Stack
 
 ### Frontend
 
@@ -16,145 +71,158 @@ The system is designed primarily for IT administrators and helpdesk technicians 
 * CSS3
 * JavaScript
 * Lucide Icons
-* Chart.js
+* Markdown rendering with Marked
 
-### Current Data Storage
-
-* Browser `localStorage`
-
-### Planned Backend
+### Backend
 
 * Node.js
 * Express.js
+* Express Session
+* bcryptjs
+
+### Database
+
 * MySQL
+* mysql2
 
-## Features
+### GitHub Repository
 
-### Dashboard
+* Git Bash
 
-The dashboard provides an overview of the current ticket workload, including:
+## Requirements
 
-* Total tickets
-* Unassigned tickets
-* Pending tickets
-* Resolved tickets
-* Recent tickets
-* Ticket priority counts
-* Tickets created today
-* Tickets resolved today
-* Ticket activity chart
+### In developing NexusDesk, I used:
 
-### Ticket Creation
+Main IDE - Visual Studio Code
+- HTML
+- JavaScript
+- CSS3
+- Node.js
+- Express.js
+- bcryptjs
 
-Administrators can create new IT support tickets with information such as:
+Database
+- MySQL
 
-* User information
-* Employee number
-* Employee email
-* Job title
-* Ticket category
-* Priority
-* Subject
-* Description
-* Assigned department
-* Assigned technician
+## Installation
 
-### Ticket Management
+### 1. Clone the repository
 
-Individual tickets can be opened and managed through a dedicated ticket page.
+Enter on Git Bash one line at a time:
 
-The system currently supports:
+git clone <repository-url> (Get on the "Code" button above.)
 
-* Viewing ticket information
-* Editing ticket details
-* Assigning technicians
-* Assigning departments
-* Changing ticket priority
-* Changing ticket status
-* Adding worknotes
-* Saving changes
-* Resolving tickets
-* Reopening resolved tickets
-* Tracking creation and resolution dates
+cd NexusDesk/
 
-### Ticket List
+### 2. Install Dependencies
 
-The ticket list provides an overview of recorded tickets and includes filtering by:
+Installing node.js and bcryptjs on Visual Studio
 
-* Ticket number
-* User
-* Assigned department
-* Assigned technician
-* Priority
-* Status
-* Creation date
-* Category
+- On Visual Studio Code terminal, enter "npm install"
 
-The ticket list also displays the number of tickets matching the current filters.
+### 3. Create the Environment File
 
-### Knowledge Base
+Create a .env file in the project root and enter
 
-A Knowledge Base section is included as part of the helpdesk system and is intended to provide technicians and users with troubleshooting information and support documentation.
+DB_HOST=localhost
+DB_USER=your_mysql_user
+DB_PASSWORD=your_mysql_password
+DB_NAME=nexusdeskdb
+DB_PORT=3306
 
-## Current Project Architecture
+SESSION_SECRET=nexusdesk
 
-The current version is frontend-focused and uses browser `localStorage` for temporary ticket storage.
+SEED_PASSWORD_EMP100=your_admin_password
+SEED_PASSWORD_EMP101=your_l1_password
+SEED_PASSWORD_EMP102=your_l2_password
+SEED_PASSWORD_EMP103=your_employee_password
+SEED_PASSWORD_EMP104=your_l1_password
+SEED_PASSWORD_EMP105=your_network_password
+SEED_PASSWORD_EMP106=your_network_password
+SEED_PASSWORD_EMP107=your_systems_password
+SEED_PASSWORD_EMP108=your_employee_password
+SEED_PASSWORD_EMP109=your_employee_password
 
-```text
-HTML
-  ↓
-CSS
-  ↓
-JavaScript
-  ↓
-localStorage
-```
+## Database Setup
 
-The planned architecture will replace `localStorage` with a Node.js/Express backend and MySQL database:
+### 1. Create the database
 
-```text
-HTML / CSS / JavaScript
-          ↓
-      Node.js
-      Express.js
-          ↓
-        MySQL
-```
+Execute database.sql using MySQL Workbench
 
-The frontend interface and ticket management workflow are being developed first before backend and database integration.
+The database creates:
 
-## Project Status
+nexusdeskdb
+├── departments
+├── users
+├── tickets
+├── worknotes
+└── knowledge_base_articles
 
-NexusDesk is currently **under development**.
+### 2. Seed user passwords
 
-### Completed
+On your Visual Studio Code, enter "node backend/seed-users.js" in the terminal
 
-* Dashboard
-* Ticket creation
-* Ticket list
-* Ticket filtering
-* Individual ticket management
-* Ticket status management
-* Resolve and reopen functionality
-* Worknotes
-* Local ticket storage
-* Dashboard ticket statistics
-* Ticket activity chart
+This is hash the user passwords adding layer to the password security
 
-### Planned
+## Running the Application
 
-* Node.js backend
-* Express.js API
-* MySQL database
-* User authentication
-* Persistent ticket storage
-* Server-side filtering
-* Improved ticket searching
-* Additional dashboard features
-* Expanded Knowledge Base functionality
+Start the backend first on your Visual Studio Code terminal:
 
-## Purpose
+node backend/server.js
 
-This project is being developed to gain practical experience in building a complete IT helpdesk system from the ground up.
+The application is available at: http://localhost:3000
 
-The project will progressively move from a frontend prototype into a full-stack application using **JavaScript, Node.js, Express.js, and MySQL**.
+## API Overview
+
+### Authentication
+
+* POST /api/login
+* POST /api/logout
+* GET /api/me
+
+## Tickets
+
+* GET    /api/tickets
+* GET    /api/tickets/:id
+* POST   /api/tickets
+* PUT    /api/tickets/:id
+
+## Worknotes
+
+* GET  /api/tickets/:id/worknotes
+* POST /api/tickets/:id/worknotes
+
+## Users and Lookups
+
+* GET /api/users/search
+* GET /api/technicians
+* GET /api/departments
+
+## Knowledge Base
+
+* GET    /api/knowledge-base
+* GET    /api/knowledge-base/:id
+* POST   /api/knowledge-base
+* PUT    /api/knowledge-base/:id
+* DELETE /api/knowledge-base/:id
+
+### Protected API endpoints use authentication and role-based authorization.
+
+## Development Notes
+
+NexusDesk was developed as a learning and portfolio project focused on building a practical IT support workflow using a web application architecture.
+
+The project emphasizes:
+
+* Role-based systems
+* REST-style API development
+* Database relationships
+* Server-side validation
+* Authentication and sessions
+* IT support workflows
+* Maintainable frontend/backend separation
+
+## License
+
+This project is intended for educational and portfolio purposes.
+

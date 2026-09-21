@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Knowledge Base Management | NexusDesk</title>
+
+    <link rel="icon" type="image/svg+xml" href="nexusdesk-favicon.svg">
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Loading Inter Font Family -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Loading Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+</head>
+
+
+
+<body>
+
+    <div class="container">
+
+        <!-- Side Bar -->
+
+        <div class="sidebar">
+
+            <div class="sidebar-header">
+
+                <i data-lucide="headset" class="sidebar-logo"></i>
+
+                <div class="sidebar-title">
+
+                    <h1>NexusDesk</h1>
+                    <h3>Support Platform</h3>
+
+                </div>
+
+            </div>
+
+            <div class="sidebar-menu">
+
+                <h4>Navigation</h4>
+                <a href="dashboard.html">
+                    <i data-lucide="layout-dashboard"></i>
+                    Dashboard</a>
+                <a href="create-ticket.html">
+                    <i data-lucide="plus-circle"></i>
+                    Create Ticket</a>
+                <a href="ticket-list.html">
+                    <i data-lucide="ticket"></i>
+                    Ticket List</a>
+                <a href="knowledge-base.html">
+                    <i data-lucide="notebook-pen"></i>
+                    Knowledge Base</a>
+
+            </div>
+
+            <div class="sidebar-footer">
+
+                <div class="sidebar-account">
+
+                    <div class="sidebar-account-information">
+
+                        <h2 id="sidebar-account-name">Account</h2>
+                        <p id="sidebar-account-email">Account Email</p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="sidebar-account-menu-button"
+                        id="sidebar-account-menu-button"
+                        aria-label="Account options"
+                    ><i data-lucide="ellipsis-vertical"></i></button>
+
+                </div>
+
+                <div class="sidebar-account-menu" id="sidebar-account-menu">
+
+                    <a href="about-page.html"><i data-lucide="info"></i>About</a>
+                    <button
+                        type="button"
+                        id="sidebar-logout-button"
+                    ><i data-lucide="log-out"></i>Log Out</button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="main-content">
+
+            <!-- Shared -->
+
+            <div class="main-content-header">
+
+                <h2><i data-lucide="notebook-pen"></i>Knowledge Base - Create Article</h2>
+
+            </div>
+
+            <div class="main-knowledge-base-create-article">
+
+                <!-- Knowledge Base Create Article Title -->
+
+                <div class="main-knowledge-base-create-article-title">
+
+                    <h1 id="knowledge-base-create-article-title">Create an Article</h1>
+
+                </div>
+
+                <!-- Knowledge Base Create Article Content -->
+
+                <div class="knowledge-base-create-article-content">
+
+                    <label for="create-article-title">Title</label>
+                    <input
+                        type="text"
+                        id="create-article-title"
+                        name="create-article-title"
+                        placeholder="Enter article title..."
+                    >
+
+                    <label for="create-article-category">Category</label>
+                    <select id="create-article-category" name="create-article-category">
+                        <option value="">Select Category</option>
+                        <option value="Hardware">Hardware</option>
+                        <option value="Software">Software</option>
+                        <option value="Network">Network</option>
+                        <option value="Accounts">Accounts</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                    <label for="create-article-problem"><i data-lucide="triangle-alert"></i>Problem</label>
+                    <textarea
+                        id="create-article-problem"
+                        name="create-article-problem"
+                        placeholder="Describe the problem..."
+                    ></textarea>
+
+                    <label for="create-article-causes"><i data-lucide="search"></i>Causes</label>
+                    <textarea
+                        id="create-article-causes"
+                        name="create-article-causes"
+                        placeholder="Mention cause/s of the problem..."
+                    ></textarea>
+
+                    <label for="create-article-troubleshoot"><i data-lucide="wrench"></i>Troubleshooting Steps</label>
+                    <textarea
+                        id="create-article-troubleshoot"
+                        name="create-article-troubleshoot"
+                        placeholder="Mention steps to resolve the issue..."
+                    ></textarea>
+
+                    <label for="create-article-resolve"><i data-lucide="circle-check"></i>Resolution</label>
+                    <textarea
+                        id="create-article-resolve"
+                        name="create-article-resolve"
+                        placeholder="Resolution..."
+                    ></textarea>
+
+                    <div class="knowledge-base-create-article-buttons">
+
+                        <div class="knowledge-base-create-article-cancel-button">
+                            <button
+                                type="button"
+                                id="knowledge-base-create-article-cancel-button"
+                            ><i data-lucide="x"></i>Cancel</button>
+                        </div>
+
+                        <div class="knowledge-base-create-article-save-button">
+                            <button
+                                type="button"
+                                id="knowledge-base-create-article-submit-button"
+                            ><i data-lucide="circle-plus"></i>Save Article</button>
+                        </div>
+
+                    </div>
+                    
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Script -->
+    <script src="script.js"></script>
+    
+</body>
+
+</html>

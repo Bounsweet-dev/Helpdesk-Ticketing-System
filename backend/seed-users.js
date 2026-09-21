@@ -12,68 +12,123 @@ const db = mysql.createConnection({
 });
 
 const passwords = {
-    "EMP001": "tech123",
-    "EMP002": "user123",
-    "EMP006" : "employee123"
+    EMP100: process.env.SEED_PASSWORD_EMP100,
+    EMP101: process.env.SEED_PASSWORD_EMP101,
+    EMP102: process.env.SEED_PASSWORD_EMP102,
+    EMP103: process.env.SEED_PASSWORD_EMP103,
+    EMP104: process.env.SEED_PASSWORD_EMP104,
+    EMP105: process.env.SEED_PASSWORD_EMP105,
+    EMP106: process.env.SEED_PASSWORD_EMP106,
+    EMP107: process.env.SEED_PASSWORD_EMP107,
+    EMP108: process.env.SEED_PASSWORD_EMP108,
+    EMP109: process.env.SEED_PASSWORD_EMP109
 };
 
-db.connect(function(error) {
+db.connect(async function(error) {
 
     if (error) {
-        console.error("MySQL connection failed:", error);
+        console.error(
+            "MySQL connection failed:",
+            error
+        );
+
         return;
     }
 
     console.log("Connected to MySQL.");
 
-    bcrypt.hash(passwords.EMP001, 10, function(error, technicianHash) {
+    try {
 
-        if (error) {
-            console.error("Failed to hash technician password:", error);
-            return;
+        const hashes = {};
+
+        for (const employeeNumber in passwords) {
+
+            hashes[employeeNumber] =
+                await bcrypt.hash(
+                    passwords[employeeNumber],
+                    10
+                );
+
         }
 
-        bcrypt.hash(passwords.EMP002, 10, function(error, userHash) {
 
-            if (error) {
-                console.error("Failed to hash user password:", error);
-                return;
-            }
+        const sql = `
+            UPDATE users
+            SET password_hash = CASE employee_number
 
-            bcrypt.hash(passwords.EMP006, 10, function(error, employeeHash){
+                WHEN 'EMP100' THEN ?
+                WHEN 'EMP101' THEN ?
+                WHEN 'EMP102' THEN ?
+                WHEN 'EMP103' THEN ?
+                WHEN 'EMP104' THEN ?
+                WHEN 'EMP105' THEN ?
+                WHEN 'EMP106' THEN ?
+                WHEN 'EMP107' THEN ?
+                WHEN 'EMP108' THEN ?
+                WHEN 'EMP109' THEN ?
+
+            END
+
+            WHERE employee_number IN (
+                'EMP100',
+                'EMP101',
+                'EMP102',
+                'EMP103',
+                'EMP104',
+                'EMP105',
+                'EMP106',
+                'EMP107',
+                'EMP108',
+                'EMP109'
+            )
+        `;
+
+
+        db.query(
+            sql,
+            [
+                hashes.EMP100,
+                hashes.EMP101,
+                hashes.EMP102,
+                hashes.EMP103,
+                hashes.EMP104,
+                hashes.EMP105,
+                hashes.EMP106,
+                hashes.EMP107,
+                hashes.EMP108,
+                hashes.EMP109
+            ],
+            function(error, result) {
 
                 if (error) {
-                    console.error("Failed to hash employee password:", error);
+
+                    console.error(
+                        "Failed to update passwords:",
+                        error
+                    );
+
+                    db.end();
                     return;
                 }
 
-                const sql = `
-                    UPDATE users
-                    SET password_hash = CASE employee_number
-                        WHEN 'EMP001' THEN ?
-                        WHEN 'EMP002' THEN ?
-                        WHEN 'EMP006' THEN ?
-                    END
-                    WHERE employee_number IN ('EMP001', 'EMP002', 'EMP006')
-                `;
-
-                db.query(
-                    sql,
-                    [technicianHash, userHash, employeeHash],
-                    function(error, result) {
-
-                        if (error) {
-                            console.error("Failed to update passwords:", error);
-                            return;
-                        }
-
-                        console.log(`${result.affectedRows} users updated.`);
-                        db.end();
-                    }
+                console.log(
+                    `${result.affectedRows} users updated.`
                 );
 
-            });
+                db.end();
 
-        });
-    });
+            }
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Failed to hash passwords:",
+            error
+        );
+
+        db.end();
+
+    }
+
 });

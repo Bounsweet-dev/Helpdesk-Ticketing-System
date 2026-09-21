@@ -42,26 +42,75 @@
 
             <div class="sidebar-menu">
 
-                <h4>Navigation</h4>
-                <a href="dashboard.html">
-                    <i data-lucide="layout-dashboard"></i>
-                    Dashboard</a>
-                <a href="create-ticket.html">
-                    <i data-lucide="plus-circle"></i>
-                    Create Ticket</a>
-                <a href="ticket-list.html">
-                    <i data-lucide="ticket"></i>
-                    Ticket List</a>
-                <a href="knowledge-base.html">
-                    <i data-lucide="book-open"></i>
-                    Knowledge Base</a>
+                <!-- Technician / Admin Sidebar -->
+
+                <div id="technician-sidebar-navigation">
+
+                    <h4>Navigation</h4>
+                    <a href="dashboard.html">
+                        <i data-lucide="layout-dashboard"></i>
+                        Dashboard</a>
+                    <a href="create-ticket.html">
+                        <i data-lucide="plus-circle"></i>
+                        Create Ticket</a>
+                    <a href="ticket-list.html">
+                        <i data-lucide="ticket"></i>
+                        Ticket List</a>
+                    <a href="knowledge-base.html">
+                        <i data-lucide="book-open"></i>
+                        Knowledge Base</a>
+
+                </div>
+
+                <!-- Employee Navigation -->
+
+                <div id="employee-sidebar-navigation">
+
+                    <h4>Navigation</h4>
+
+                    <a href="user-help-request.html">
+                        <i data-lucide="wrench"></i>
+                        Ask for Assistance
+                    </a>
+
+                    <a href="knowledge-base.html">
+                        <i data-lucide="book"></i>
+                        Knowledge Base
+                    </a>
+
+                </div>
 
             </div>
 
             <div class="sidebar-footer">
 
-                <h2>Account</h2>
-                <p>Account Email</p>
+                <div class="sidebar-account">
+
+                    <div class="sidebar-account-information">
+
+                        <h2 id="sidebar-account-name">Account</h2>
+                        <p id="sidebar-account-email">Account Email</p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="sidebar-account-menu-button"
+                        id="sidebar-account-menu-button"
+                        aria-label="Account options"
+                    ><i data-lucide="ellipsis-vertical"></i></button>
+
+                </div>
+
+                <div class="sidebar-account-menu" id="sidebar-account-menu">
+
+                    <a href="about-page.html"><i data-lucide="info"></i>About</a>
+                    <button
+                        type="button"
+                        id="sidebar-logout-button"
+                    ><i data-lucide="log-out"></i>Log Out</button>
+
+                </div>
 
             </div>
 
@@ -81,11 +130,23 @@
                 
                 <!-- Knowledge Base Title -->
 
-                <div class="main-knowledge-base-title">
+                <div class="main-knowledge-base-title-and-create-button">
 
-                    <h1>Knowledge Base</h1>
-                    <p>Find Solutions, troubleshooting guides, and IT Procedures.</p>
+                    <div class="main-knowledge-base-title">
 
+                        <h1>Knowledge Base</h1>
+                        <p>Find Solutions, troubleshooting guides, and IT Procedures.</p>
+
+                    </div>
+
+                    <div class="main-knowledge-base-create-article-button">
+
+                        <a href="knowledge-base-manage.html" id="knowledge-base-create-article-button">
+                            <i data-lucide="plus"></i>Create Article
+                        </a>
+
+                    </div>
+                    
                 </div>
 
                 <!-- Search Bar -->
@@ -106,35 +167,35 @@
 
                 <div class="main-knowledge-base-cards">
 
-                    <a href=# class="card-knowledge-base" data-category="Hardware">
+                    <a href="#" class="card-knowledge-base" data-category="Hardware">
 
                         <h3>Hardware</h3>
                         <p>0</p>
 
                     </a>
 
-                    <a href=# class="card-knowledge-base" data-category="Software">
+                    <a href="#" class="card-knowledge-base" data-category="Software">
 
                         <h3>Software</h3>
                         <p>0</p>
 
                     </a>
 
-                    <a href=# class="card-knowledge-base" data-category="Network">
+                    <a href="#" class="card-knowledge-base" data-category="Network">
 
                         <h3>Network</h3>
                         <p>0</p>
 
                     </a>
 
-                    <a href=# class="card-knowledge-base" data-category="Account">
+                    <a href="#" class="card-knowledge-base" data-category="Accounts">
 
                         <h3>Accounts</h3>
                         <p>0</p>
 
                     </a>
 
-                    <a href=# class="card-knowledge-base" data-category="Other">
+                    <a href="#" class="card-knowledge-base" data-category="Other">
 
                         <h3>Other KBs</h3>
                         <p>0</p>

@@ -14,7 +14,7 @@ const express = require("express");
 const mysql = require("mysql2");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
-const { stat } = require("fs");
+const { error } = require("console");
 
 const app = express();
 const PORT = 3000;
@@ -40,7 +40,7 @@ function requireLogin(req, res, next) {
 // Protecting API endpoints preventing users to not manually send requests to database
 
 function requireApiLogin (req, res, next) {
-
+    
     if (!req.session.userId) {
         res.status(401).json({
             error: "Not authenticated."
@@ -48,24 +48,126 @@ function requireApiLogin (req, res, next) {
 
         return;
     }
-
+    
     next();
+}
+
+
+// Protecting API endpoints by role
+
+function requireApiRole (allowedRoles) {
+
+    return function(req, res, next) {
+
+        if (!req.session.userId) {
+            res.status(401).json({
+                error: "Not authenticated"
+            });
+
+            return;
+        }
+
+        if (!allowedRoles.includes(req.session.role)) {
+            res.status(403).json({
+                error: "You do not have permission to access this resource."
+            });
+
+            return;
+        }
+
+        next();
+
+    }
 
 }
 
+// Detemine where each role should go
+
+function getRoleHome(role) {
+
+    if (role === "employee") {
+        return "/user-help-request.html";
+    }
+    
+    if (role === "technician" || role === "admin") {
+        return "/dashboard.html";
+    }
+
+    return "index.html";
+
+}
+
+// Protecting HTML pages by role
+
+function requirePageRole(allowedRoles) {
+
+    return function(req, res, next) {
+
+        if (!req.session.userId) {
+            res.redirect("/index.html");
+            return;
+        }
+
+        if (!req.session.role) {
+            res.redirect("/index.html");
+            return;
+        }
+
+        if (!allowedRoles.includes(req.session.role)) {
+            res.redirect(getRoleHome(req.session.role));
+            return;
+        }
+
+        next();
+    };
+}
+
+// Page access map
+
+const pageAccess = {
+
+    "/dashboard.html": ["technician","admin"],
+    "/create-ticket.html": ["technician","admin"],
+    "/ticket-list.html": ["technician","admin"],
+    "/ticket-main-page.html": ["technician","admin"],
+    "/user-help-request.html": ["employee"],
+    "/knowledge-base.html": ["employee","technician","admin"],
+    "/knowledge-base-manage.html": ["admin"]
+
+};
+
+// Apply page role protection
+
 app.use(function(req, res, next) {
 
-    if (
-        req.path.endsWith(".html") &&
-        req.path !== "/index.html"
-    ) {
-        requireLogin(req, res, next);
+    const allowedRoles = pageAccess[req.path];
+
+    if (!allowedRoles) {
+        next();
         return;
     }
 
-    next();
+    requirePageRole(allowedRoles)(req, res, next);
 
 });
+
+app.get(
+    ["/", "/index.html"],
+    function(req, res) {
+
+        if (!req.session.userId) {
+
+            res.sendFile(path.join(__dirname,"..", "index.html"));
+            return;
+
+        }
+
+        res.redirect(getRoleHome(req.session.role));
+
+    }
+);
+
+// Serve frontend files
 
 app.use(express.static(path.join(__dirname, "..")));
 
@@ -92,8 +194,6 @@ db.connect(function(error) {
         return;
     }
 
-    console.log("Connected to MySQL.");
-
 });
 
 // Test route
@@ -108,7 +208,7 @@ app.get("/", function (req, res) {
 
 // Getting all tickets
 
-app.get("/api/tickets", requireApiLogin, function(req, res) {
+app.get("/api/tickets", requireApiRole(["technician", "admin"]), function (req, res) {
 
     const sql = `
         SELECT
@@ -163,7 +263,7 @@ app.get("/api/tickets", requireApiLogin, function(req, res) {
 
 // Getting individual tickets (GET)
 
-app.get("/api/tickets/:id", requireApiLogin, function(req, res) {
+app.get("/api/tickets/:id", requireApiRole(["technician", "admin"]), function(req, res) {
 
     const ticketId = req.params.id;
 
@@ -232,187 +332,272 @@ app.get("/api/tickets/:id", requireApiLogin, function(req, res) {
 
 app.post("/api/tickets", requireApiLogin, function(req, res) {
 
-    let {
 
+    const {
         requesterId,
-        assignedToUserId = null,
-        assignedDepartmentId = null,
         category,
         priority,
         subject,
         description,
-        status = "open"
-
+        status
     } = req.body;
 
-    if (!subject || description) {
+    // Allowed Values
 
+    const allowedPriorities = [
+        "low",
+        "medium",
+        "high",
+    ];
+
+    const allowedStatuses = [
+        "open",
+        "in-progress",
+        "on-hold",
+        "pending",
+        "resolved"
+    ];
+
+    // Basic validation
+    if (!subject || !description) {
         res.status(400).json({
             error: "Subject and description are required."
+        });
+        return;
+    }
+
+    if (!allowedPriorities.includes(priority)) {
+
+        res.status(400).json({
+            error: "Invalid ticket priority."
         });
 
         return;
 
     }
 
-    // Get currently logged in user
+    const currentUserId = req.session.userId;
+    const currentUserRole = req.session.role;
+    let finalRequesterId = requesterId;
+    let finalStatus = status || "open";
+    let assignedToUserId = null;
+    let assignedDepartmentId = null;
 
-    const currentUserSql = `
-        SELECT
-            user_id,
-            role
+    // Employee creating a help request
+    if (currentUserRole === "employee") {
+
+        finalRequesterId = currentUserId;
+        finalStatus = "open";
+
+    }
+
+    // Technician or admin creating a ticket
+    else if (
+        currentUserRole === "technician" ||
+        currentUserRole === "admin"
+    ) {
+
+        if (!finalRequesterId) {
+            res.status(400).json({
+                error: "Requester is required."
+            });
+            return;
+        }
+    
+    }
+
+    else {
+        res.status(403).json({
+            error: "You do not have permission to create tickets."});
+            return;
+    }
+
+    // Validate final status
+
+    if (!allowedStatuses.includes(finalStatus)) {
+        res.status(400).json({
+            error: "Invalid ticket status."
+        });
+        return;
+    }
+
+    // Validate requester exists
+
+
+    const requesterSql = `
+    
+        SELECT user_id
         FROM users
-        WHERE user_id = ?    
-
+        WHERE user_id = ?
+        LIMIT 1
+    
     `;
 
     db.query(
-        currentUserSql, [req.session.userId],
+        requesterSql, [finalRequesterId],
         function(error, results) {
-            
+
             if (error) {
 
-                console.error("Failed to retrieve current user.", error);
+                console.error("Failed to validate requester:", error);
                 res.status(500).json({
-                    error: "Failed to create ticket."
+                    error: "Failed to validate requester."
                 });
 
                 return;
 
             }
 
-            const currentUser = results[0];
+            if (results.length === 0) {
 
-            // Employee Help Request / User logged in is an Employee
+                res.status(400).json({
+                    error: "Requester does not exist."
+                });
 
-            if (currentUser.role === "employee") {
-                requesterId = currentUser.user_id;
-                assignedToUserId = null;
-                assignedDepartmentId = null;
-                status = "open";
-            }
-
-            // Ticket Creation / User logged in is a Technician
-
-            else {
-
-                if (!requesterId) {
-                    res.status(400).json({
-                        error: "Requester is required."
-                    });
-
-                    return;
-                }
+                return;
 
             }
 
-            // Generate ticket number
-
-            const getNextTicketIdSql = `
-    
-                SELECT COALESCE(MAX(ticket_id), 0) + 1 AS nextTicketId
-                FROM tickets
-
-            `;
-
-            db.query(getNextTicketIdSql, function(error, results) {
-
-                if(!requesterId || !subject || !description) {
-                    res.status(400).json({
-                        error: "Requester, subject, and description are required."
-                    });
-
-                    return;
-                }
-
-                const allowedStatuses = [
-                    "open",
-                    "in-progress",
-                    "on-hold",
-                    "pending",
-                    "resolved"
-                ];
-
-                if (!allowedStatuses.includes(status)) {
-                    res.status(400).json({
-                        error: "Invalid ticket status."
-                    });
-
-                    return;
-                }
-
-                if(error) {
-
-                    console.error("Failed to generate ticket number:", error);
-                    res.status(500).json({
-                        error: "Failed to generate ticket number."
-                    });
-
-                    return;
-
-                }
-
-                const nextTicketId = results[0].nextTicketId;
-                const ticketNumber = `INC${1000 + nextTicketId}`;
-                const insertTicketSql = `
-
-                    INSERT INTO tickets (
-                        ticket_number,
-                        requester_id,
-                        assigned_to_user_id,
-                        assigned_department_id,
-                        category,
-                        priority,
-                        subject,
-                        description,
-                        status
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-
+            if (currentUserRole == "technician") {
+                const currentTechnicianSql = `
+                
+                    SELECT
+                        user_id,
+                        department_id
+                    FROM users
+                    WHERE user_id = ?
+                        AND role = 'technician'
+                    LIMIT 1
+                
                 `;
 
                 db.query(
 
-                    insertTicketSql, [
-                        
-                        ticketNumber,
-                        requesterId,
-                        assignedToUserId,
-                        assignedDepartmentId,
-                        category,
-                        priority,
-                        subject,
-                        description,
-                        status
-
-                    ],
-                    function(error, result) {
+                    currentTechnicianSql, [currentUserId],
+                    function(error, results) {
 
                         if (error) {
-                            
-                            console.error("Failed to create ticket:", error);
+
+                            console.error("Failed to retrieve current technician:", error);
                             res.status(500).json({
-                                error: "Failed to create ticket."
+                                error: "Failed to retrieve current technician."
                             });
 
                             return;
 
                         }
 
-                        res.status(201).json({
+                        if (
+                            results.length === 0 ||
+                            results[0].department_id === null
+                        ) {
 
-                            message: "Ticket created successfully.",
-                            ticketId: result.insertId,
-                            ticketNumber: ticketNumber
-                            
-                        });
+                            res.status(400).json({
+                                error: "Your technician account is not assigned to a department."
+                            });
+                            return;
+
+                        }
+
+                        assignedToUserId = results[0].user_id;
+                        assignedDepartmentId = results[0].department_id;
+                        createTicket();
 
                     }
 
                 );
-
-            });
+            } else {
+                createTicket();
+            }
             
+            function createTicket() {
+
+                // Generate ticket number
+
+                const getNextTicketIdSql = `
+                    SELECT COALESCE(MAX(ticket_id), 0) + 1
+                    AS nextTicketId
+                    FROM tickets
+                `;
+
+                db.query(
+                    getNextTicketIdSql,
+                    function(error, results) {
+
+                        if (error) {
+
+                            console.error(
+                                "Failed to generate ticket number:",
+                                error
+                            );
+
+                            res.status(500).json({
+                                error: "Failed to generate ticket number."
+                            });
+
+                            return;
+                        }
+
+                        const nextTicketId = results[0].nextTicketId;
+                        const ticketNumber = `INC${1000 + nextTicketId}`;
+
+                        const insertTicketSql = `
+                            INSERT INTO tickets (
+                                ticket_number,
+                                requester_id,
+                                assigned_to_user_id,
+                                assigned_department_id,
+                                category,
+                                priority,
+                                subject,
+                                description,
+                                status
+                            )
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        `;
+
+                        db.query(
+                            insertTicketSql,
+                            [
+                                ticketNumber,
+                                finalRequesterId,
+                                assignedToUserId,
+                                assignedDepartmentId,
+                                category,
+                                priority,
+                                subject,
+                                description,
+                                finalStatus
+                            ],
+                            function(error, result) {
+
+                                if (error) {
+
+                                    console.error(
+                                        "Failed to create ticket:",
+                                        error
+                                    );
+
+                                    res.status(500).json({
+                                        error: "Failed to create ticket."
+                                    });
+
+                                    return;
+                                }
+
+                                res.status(201).json({
+                                    message: "Ticket created successfully.",
+                                    ticketId: result.insertId,
+                                    ticketNumber: ticketNumber
+                                });
+
+                            }
+                        );
+
+                    }
+                );
+
+            }
 
         }
     );
@@ -421,11 +606,11 @@ app.post("/api/tickets", requireApiLogin, function(req, res) {
 
 // Editing a ticket through front end (PUT)
 
-app.put("/api/tickets/:id", requireApiLogin, function(req, res) {
+app.put("/api/tickets/:id", requireApiRole(["technician", "admin"]), function(req, res) {
 
     const ticketId = req.params.id;
 
-    const {
+    let {
 
         assignedToUserId,
         assignedDepartmentId,
@@ -437,69 +622,224 @@ app.put("/api/tickets/:id", requireApiLogin, function(req, res) {
 
     } = req.body;
 
-    const sql = `
-    
-        UPDATE tickets
-        SET
-            assigned_to_user_id = ?,
-            assigned_department_id = ?,
-            category = ?,
-            priority = ?,
-            subject = ?,
-            description = ?,
-            status = ?,
-            resolved_at = CASE
-                WHEN ? = 'resolved' THEN CURRENT_TIMESTAMP
-                ELSE NULL
-            END
-        WHERE ticket_id = ?
-    
-    `;
+    // Convert empty values to null
 
-    db.query(
+    assignedToUserId = assignedToUserId || null;
+    assignedDepartmentId = assignedDepartmentId || null;
 
-        sql, [
+    // Allowed priorities
 
-            assignedToUserId,
-            assignedDepartmentId,
-            category,
-            priority,
-            subject,
-            description,
-            status,
-            status,
-            ticketId
+    const allowedPriorities = [
+        "low",
+        "medium",
+        "high",
+        "critical"
+    ];
 
-        ],
+    if (!allowedPriorities.includes(priority)) {
 
-        function(error, result) {
+        res.status(400).json({
+            error: "Invalid ticket priority."
+        });
 
-            if (error) {
+        return;
+    }
 
-                console.error("Failed to update ticket:", error);
-                res.status(500).json({
-                    error: "Failed to update ticket."
+
+    // Allowed statuses
+
+    const allowedStatuses = [
+        "open",
+        "in-progress",
+        "on-hold",
+        "pending",
+        "resolved"
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+
+        res.status(400).json({
+            error: "Invalid ticket status."
+        });
+
+        return;
+    }
+
+
+    // Validate required fields
+
+    if (!subject || !description) {
+
+        res.status(400).json({
+            error:
+                "Subject and description are required."
+        });
+
+        return;
+    }
+
+    // Validate technician assignment only when a tech is actually assigned
+
+    if (assignedDepartmentId !== null &&
+        assignedToUserId === null
+    ) {
+        res.status(400).json({
+            error: "Please assign a technician."
+        });
+
+        return;
+
+    }
+
+    if (assignedToUserId !== null &&
+        assignedDepartmentId === null
+    ) {
+        res.status(400).json({
+            error: "Please assign a department"
+        });
+    }
+
+    if (assignedToUserId !== null) {
+
+        const assignmentSql = `
+        
+            SELECT
+                u.user_id,
+                u.role,
+                u.department_id
+            FROM users u
+            WHERE u.user_id = ?
+            LIMIT 1
+
+        `;
+
+        db.query(
+            assignmentSql, [assignedToUserId],
+            function(error, results) {
+
+                if(error) {
+
+                    console.error("Failed to validate technician assignment:", error);
+                    res.status(500).json({
+                        error: "Failed to validate technician assignment."
+                    });
+
+                    return;
+
+                }
+
+                if (results.length === 0) {
+
+                    res.status(400).json({
+                        error: "Assigned user is not a technician."
+                    });
+
+                    return;
+                    
+                }
+
+                const technician = results[0];
+
+                if (technician.role !== "technician") {
+                    res.status(400).json({
+                        error: "Assigned user is not a technician."
+                    });
+
+                    return;
+                }
+
+                if (Number(technician.department_id) !== Number(assignedDepartmentId)) {
+
+                    res.status(400).json({
+                        error: "Assigned technician does not belong to the selected department."
+                    });
+
+                    return;
+
+                }
+
+                updateTicket();
+
+            }
+        );
+
+    } else {
+
+        // No department and technician
+        updateTicket();
+
+    }
+
+    // Update ticket
+
+    function updateTicket() {
+
+        const sql = `
+            
+            UPDATE tickets
+            SET
+                assigned_to_user_id = ?,
+                assigned_department_id = ?,
+                category = ?,
+                priority = ?,
+                subject = ?,
+                description = ?,
+                status = ?,
+                resolved_at = CASE
+                    WHEN ? = 'resolved' 
+                        THEN CURRENT_TIMESTAMP
+                    ELSE NULL
+                END
+            WHERE ticket_id = ?
+        
+        `;
+
+        db.query(
+
+            sql, [
+
+                assignedToUserId,
+                assignedDepartmentId,
+                category,
+                priority,
+                subject,
+                description,
+                status,
+                status,
+                ticketId
+
+            ],
+
+            function(error, result) {
+
+                if (error) {
+
+                    console.error("Failed to update ticket:", error);
+                    res.status(500).json({
+                        error: "Failed to update ticket."
+                    });
+
+                    return;
+
+                }
+
+                if (result.affectedRows === 0) {
+                    res.status(404).json({
+                        error: "Ticket not found."
+                    });
+
+                    return;
+                }
+
+                res.json({
+                    message: "Ticket updated successfully."
                 });
-
-                return;
 
             }
 
-            if (result.affectedRows === 0) {
-                res.status(404).json({
-                    error: "Ticket not found."
-                });
+        );
 
-                return;
-            }
-
-            res.json({
-                message: "Ticket updated successfully."
-            });
-
-        }
-
-    );
+    }
 
 });
 
@@ -509,100 +849,177 @@ app.put("/api/tickets/:id", requireApiLogin, function(req, res) {
 
 // Reading worknotes (GET)
 
-app.get("/api/tickets/:id/worknotes", requireApiLogin, function(req, res) {
+app.get("/api/tickets/:id/worknotes", requireApiRole(["technician", "admin"]), function(req, res) {
 
     const ticketId = req.params.id;
 
-    const sql = `
-    
-        SELECT
-            w.worknote_id,
-            w.ticket_id,
-            u.username,
-            w.note,
-            w.created_at
-        FROM worknotes w
-
-        JOIN users u
-            ON w.user_id = u.user_id
-
-        WHERE w.ticket_id = ?
-
-        ORDER BY w.created_at DESC
-
-    `;
-
-    db.query(sql, [ticketId], function(error, results) {
-
-        if (error) {
-
-            console.error("Failed to retrieve worknotes:", error);
-            res.status(500).json({
-                error: "Failed to retrieve worknotes."
-            });
-
-            return;
-
-        }
-
-        res.json(results);
-
-    });
-
-});
-
-//Writing worknotes (POST)
-
-app.post("/api/tickets/:id/worknotes", requireApiLogin, function(req, res) {
-
-    if (!req.session.userId) {
-        res.status(401).json({
-            error: "Not authenticated."
-        });
-
-        return;
-    }
-
-    const ticketId = req.params.id;
-    const userId = req.session.userId;
-    const { note } = req.body;
-
-    if (!note || note.trim() === "") {
-        res.status(400).json({
-            error: "Worknote is required."
-        });
-
-        return;
-    }
-
-    const sql = `
-        INSERT INTO worknotes (
-            ticket_id,
-            user_id,
-            note
-        )
-        VALUES (?, ?, ?)
+    const ticketSql = `
+        SELECT ticket_id
+        FROM tickets
+        WHERE ticket_id = ?
+        LIMIT 1
     `;
 
     db.query(
-        sql,
-        [ticketId, userId, note.trim()],
-        function(error, result) {
+        ticketSql,
+        [ticketId],
+        function(error, ticketResults) {
 
             if (error) {
-                console.error("Failed to create worknote:", error);
+
+                console.error(
+                    "Failed to validate ticket:",
+                    error
+                );
 
                 res.status(500).json({
-                    error: "Failed to create worknote."
+                    error: "Failed to validate ticket."
                 });
 
                 return;
             }
 
-            res.status(201).json({
-                message: "Worknote added successfully.",
-                worknoteId: result.insertId
-            });
+            if (ticketResults.length === 0) {
+
+                res.status(404).json({
+                    error: "Ticket not found."
+                });
+
+                return;
+            }
+
+            const worknoteSql = `
+                SELECT
+                    w.worknote_id,
+                    u.full_name,
+                    w.note,
+                    w.created_at
+                FROM worknotes w
+                JOIN users u
+                    ON w.user_id = u.user_id
+                WHERE w.ticket_id = ?
+                ORDER BY w.created_at DESC
+            `;
+
+            db.query(
+                worknoteSql,
+                [ticketId],
+                function(error, results) {
+
+                    if (error) {
+
+                        console.error(
+                            "Failed to retrieve worknotes:",
+                            error
+                        );
+
+                        res.status(500).json({
+                            error:
+                                "Failed to retrieve worknotes."
+                        });
+
+                        return;
+                    }
+
+                    res.json(results);
+
+                }
+            );
+
+        }
+    );
+
+});
+
+//Writing worknotes (POST)
+
+app.post("/api/tickets/:id/worknotes", requireApiRole(["technician", "admin"]), function(req, res) {
+
+    const ticketId = req.params.id;
+    const userId = req.session.userId;
+    const { note } = req.body;
+
+    // Validate worknote
+
+    if (!note || note.trim() === "") {
+        res.status(400).json({
+            error: "Worknote cannot be empty."
+        });
+        return;
+    }
+
+    // Check wether ticket exists
+
+    const  ticketSql = `
+    
+        SELECT
+            ticket_id
+        FROM tickets
+        WHERE ticket_id = ?
+        LIMIT 1
+    
+    `;
+
+    db.query(
+        ticketSql, [ticketId],
+        function(error, results) {
+
+            if (error) {
+
+                console.error("Failed to validate ticket:", error);
+                res.status(500).json({
+                    error: "Failed to validate ticket."
+                });
+
+                return;
+
+            }
+
+            if (results.length === 0) {
+
+                res.status(404).json({
+                    error: "Ticket not found."
+                });
+
+                return;
+
+            }
+
+            // Ticket exists -> create worknote
+
+            const worknoteSql = `
+            
+                INSERT INTO worknotes (
+                    ticket_id,
+                    user_id,
+                    note
+                )
+                VALUES (?, ?, ?)
+            
+            `;
+
+            db.query(
+                worknoteSql, [ticketId, userId, note.trim()],
+                function(error, result) {
+
+                    if (error) {
+
+                        console.error("Failed to create worknote:", error);
+                        res.status(500).json({
+                        error: "Failed to create worknote."
+                    });
+
+                    return;
+
+                    }
+
+                    res.status(201).json({
+                        message: "Worknote added successfully.", 
+                        worknoteId: result.insertId
+                    });
+                }
+            );
+
         }
     );
 });
@@ -613,7 +1030,7 @@ app.post("/api/tickets/:id/worknotes", requireApiLogin, function(req, res) {
 
 // Departments API (GET)
 
-app.get("/api/departments", requireApiLogin, function(req, res) {
+app.get("/api/departments", requireApiRole(["technician", "admin"]), function (req, res) {
 
     const sql = `
     
@@ -646,7 +1063,7 @@ app.get("/api/departments", requireApiLogin, function(req, res) {
 
 // Users API (GET)
 
-app.get("/api/users", requireApiLogin, function(req, res) {
+app.get("/api/users", requireApiRole(["technician", "admin"]), function (req, res) {
 
     const sql = `
     
@@ -689,7 +1106,7 @@ app.get("/api/users", requireApiLogin, function(req, res) {
 
 // Single User Searching (GET)
 
-app.get("/api/users/search", requireApiLogin, function(req, res) {
+app.get("/api/users/search", requireApiRole(["technician", "admin"]), function (req, res) {
 
     const searchQuery = req.query.query || "";
     const sql = `
@@ -749,13 +1166,14 @@ app.get("/api/users/search", requireApiLogin, function(req, res) {
 
 // Technician Search (GET)
 
-app.get("/api/technicians", requireApiLogin, function(req, res) {
+app.get("/api/technicians", requireApiRole(["technician", "admin"]), function (req, res) {
 
     const departmentId = req.query.departmentId;
 
     let sql = `
         SELECT
             u.user_id,
+            u.username, 
             u.employee_number,
             u.full_name,
             u.email,
@@ -893,21 +1311,37 @@ app.post("/api/login", function(req, res) {
                     }
 
                     req.session.userId = user.user_id;
+                    req.session.role = user.role;
 
-                    res.json({
+                    req.session.save(function(error){
 
-                        message: "Login successful.",
-                        user: {
-                            userId: user.user_id,
-                            username: user.username,
-                            fullName: user.full_name,
-                            email: user.email,
-                            employeeNumber: user.employee_number,
-                            jobTitle: user.job_title,
-                            role: user.role,
-                            departmentId: user.department_id,
-                            departmentName: user.department_name
+                        if (error) {
+                            
+                            console.error("Failed to save session:", error);
+                            res.status(500).json({
+                                error: "Login failed."
+                            });
+
+                        return;
+
                         }
+
+                        res.json({
+
+                            message: "Login successful.",
+                            user: {
+                                userId: user.user_id,
+                                username: user.username,
+                                fullName: user.full_name,
+                                email: user.email,
+                                employeeNumber: user.employee_number,
+                                jobTitle: user.job_title,
+                                role: user.role,
+                                departmentId: user.department_id,
+                                departmentName: user.department_name
+                            }
+
+                        });
 
                     });
 
@@ -923,17 +1357,7 @@ app.post("/api/login", function(req, res) {
 
 // Checking logged in user (GET)
 
-app.get("/api/me", function(req, res) {
-
-    if (!req.session.userId) {
-
-        res.status(401).json({
-            error: "Not authenticated."
-        });
-
-        return;
-
-    }
+app.get("/api/me", requireApiLogin, function(req, res) {
 
     const sql = `
     
@@ -953,6 +1377,8 @@ app.get("/api/me", function(req, res) {
             ON u.department_id = d.department_id
 
         WHERE u.user_id = ?
+
+        LIMIT 1
     
     `;
 
@@ -1022,20 +1448,395 @@ app.post("/api/logout", function(req, res) {
 
 });
 
+// ================================================
+//    Knowlege Base API - GET, POST, PUT, DELETE
+// ================================================
+
+// Update the KB API to understan JSON
+
+function parseKnowledgeBaseContent(content) {
+    if (typeof content !== "string") {
+        return content;
+    }
+    
+    try {
+        return JSON.parse(content);
+    } catch (error) {
+
+        return {
+            problem: content,
+            causes: [],
+            steps: [],
+            resolution: ""
+        };
+
+    }
+
+}
+
+function validateKnowledgeBaseContent(content) {
+
+    if (!content ||
+        typeof content !== "object" ||
+        Array.isArray(content)
+    ) {
+        return "Article content must be an object.";
+    }
+
+    if (
+        typeof content.problem !== "string" ||
+        content.problem.trim() === ""
+    ) {
+        return "Article problem is required.";
+    }
+
+    if (!Array.isArray(content.causes)) {
+        return "Article causes must be an array.";
+    }
+
+    if (content.causes.some(function(cause) {
+        return typeof cause !== "string" || cause.trim() === "";
+    })) {
+        return "Article causes must contain valid text.";
+    }
+
+    if (!Array.isArray(content.steps)) {
+        return "Article steps must be an array.";
+    }
+
+    if (content.steps.some(function(step) {
+        return typeof step !== "string" || step.trim() === "";
+    })) {
+        return "Article steps must contain valid text.";
+    }
+
+    if (typeof content.resolution !== "string" || content.resolution.trim() === "") {
+        return "Article resolution is required.";
+    }
+
+    return null;
+
+}
+
+// Get all articles
+
+app.get("/api/knowledge-base", requireApiLogin, function(req, res)  {
+
+    const query = req.query.query || "";
+    const category = req.query.category || "";
+    const sql = `
+        SELECT
+            kb.article_id,
+            kb.title,
+            kb.category,
+            kb.content,
+            kb.created_by,
+            kb.created_at,
+            kb.updated_at,
+            u.full_name AS author
+        FROM knowledge_base_articles kb
+
+        JOIN users u
+            ON kb.created_by = u.user_id
+
+        WHERE
+            (
+                kb.title LIKE ?
+                OR kb.content LIKE ?
+            )
+            AND (
+                ? = ''
+                OR kb.category = ?
+            )
+
+        ORDER BY kb.updated_at DESC
+    `;
+
+    const searchValue = `%${query}%`;
+
+    db.query(
+        sql, [searchValue, searchValue, category, category],
+        function (error, results) {
+
+            if (error) {
+                console.error ("Failed to retrieve knowledge base articles:", error);
+            
+                res.status(500).json({
+                    error: "Failed to retrieve knowledge base articles."
+                });
+
+                return;
+
+            }
+
+            const articles = results.map(function(article) {
+                return{...article,
+                    content: parseKnowledgeBaseContent(article.content)};
+            });
+
+            res.json(articles);
+
+        }
+    )
+
+});
+
+// Get one article
+
+app.get("/api/knowledge-base/:id", requireApiLogin, function(req, res) {
+
+    const articleId = req.params.id;
+    const sql = `
+        SELECT
+            kb.article_id,
+            kb.title,
+            kb.category,
+            kb.content,
+            kb.created_by,
+            kb.created_at,
+            kb.updated_at,
+            u.full_name AS author
+        FROM knowledge_base_articles kb
+
+        JOIN users u
+            ON kb.created_by = u.user_id
+
+        WHERE kb.article_id = ?
+
+        LIMIT 1
+    `;
+
+    db.query(
+        sql, [articleId],
+        function(error, results) {
+
+            if (error) {
+
+                console.error("Failed to retrieve knowledge base article:", error);
+
+                res.status(500).json({
+                    error: "Failed to retrieve knowledge base article."
+                });
+
+                return;
+
+            }
+
+            if (results.length === 0) {
+
+                res.status(404).json({
+                    error: "Knowledge base article not found."
+                });
+
+                return;
+
+            }
+
+            const article = {
+                ...results[0],
+                content: parseKnowledgeBaseContent(results[0].content)
+            };
+
+            res.json(article);
+
+        }
+    );
+
+});
+
+// Creating an article
+
+app.post("/api/knowledge-base", requireApiRole(["admin"]), function(req, res) {
+
+    const {
+        title,
+        category,
+        content
+    } = req.body;
+
+    if (
+        !title ||
+        !category ||
+        !content
+    ) {
+
+        res.status(400).json({
+            error: "Title, category, and content are required."
+        });
+        
+        return;
+        
+    }
+
+    // Validate structured article content
+
+    const contentError = validateKnowledgeBaseContent(content);
+
+    if (contentError) {
+
+        res.status(400).json({
+            error: contentError
+        });
+
+        return;
+
+    }
+
+    const sql = `
+        INSERT INTO knowledge_base_articles (
+            title,
+            category,
+            content,
+            created_by
+        )
+        VALUES (?, ?, ?, ?)
+    `;
+
+    db.query(
+
+        sql, [title.trim(), category.trim(), JSON.stringify(content), req.session.userId],
+        function(error, result) {
+
+            if (error) {
+
+                console.error("Failed to create knowledge base article:", error);
+                res.status(500).json({
+                    error: "Failed to create knwoeldge base article."
+                });
+
+                return;
+
+            }
+
+            res.status(201).json({
+                message: "Knowledge base article created successfully.",
+                articleId: result.insertId
+            });
+
+        }
+
+    );
+
+});
+
+// Updating an article
+
+app.put("/api/knowledge-base/:id", requireApiRole(["admin"]), function(req, res) {
+
+    const articleId = req.params.id;
+    const {
+        title,
+        category,
+        content
+    } = req.body;
+
+    if (
+        !title ||
+        !category ||
+        !content
+    ) {
+        res.status(400).json({
+            error: "Title, category, and content are required."
+        });
+
+        return;
+    }
+
+    const contentError = validateKnowledgeBaseContent(content);
+
+    if (contentError) {
+
+        res.status(400).json({
+            error: contentError
+        });
+
+        return;
+
+    }
+
+    const sql = `
+        UPDATE knowledge_base_articles
+        SET
+            title = ?,
+            category = ?,
+            content = ?
+        WHERE article_id = ?
+    `;
+
+    db.query(
+        sql, [title.trim(), category.trim(), JSON.stringify(content), articleId],
+        function(error, result) {
+
+            if (error) {
+
+                console.error("Failed to update knowledge base article:", error);
+                res.status(500).json({
+                    error: "Failed to update knowledge base article."
+                });
+
+                return;
+
+            }
+
+            if (result.affectedRows === 0) {
+                res.status(404).json({
+                    error: "Knowledge base article not found."
+                });
+
+                return;
+            }
+
+            res.json({
+                message: "Knowledge base article updated successfully."
+            });
+
+        }
+    );
+
+});
+
+// Deleting an article
+
+app.delete("/api/knowledge-base/:id", requireApiRole(["admin"]), function(req, res) {
+
+    const articleId = req.params.id;
+    const sql = `
+        DELETE FROM knowledge_base_articles
+        WHERE article_id = ?
+    `;
+
+    db.query(
+
+        sql, [articleId], function(error, result) {
+
+            if (error) {
+
+                console.error("Failed to delete knowledge base article:", error);
+                res.status(500).json({error: "Failed to delete knowledge base article."});
+                
+                return;
+
+            }
+
+            if (result.affectedRows === 0) {
+                res.status(404).json({
+                    error: "Knowledge base article not found."
+                });
+
+                return;
+            }
+
+            res.json({
+                message: "Knowledge base article deleted successfully."
+            });
 
 
 
+        }
 
+    );
 
-
-
-
-
-
-
-
-
-
+});
 
 // Start Server
 

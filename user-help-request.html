@@ -55,8 +55,33 @@
 
             <div class="sidebar-footer">
 
-                <h2>Account</h2>
-                <p>Account Email</p>
+                <div class="sidebar-account">
+
+                    <div class="sidebar-account-information">
+
+                        <h2 id="sidebar-account-name">Account</h2>
+                        <p id="sidebar-account-email">Account Email</p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="sidebar-account-menu-button"
+                        id="sidebar-account-menu-button"
+                        aria-label="Account options"
+                    ><i data-lucide="ellipsis-vertical"></i></button>
+
+                </div>
+
+                <div class="sidebar-account-menu" id="sidebar-account-menu">
+
+                    <a href="about-page.html"><i data-lucide="info"></i>About</a>
+                    <button
+                        type="button"
+                        id="sidebar-logout-button"
+                    ><i data-lucide="log-out"></i>Log Out</button>
+
+                </div>
 
             </div>
 
